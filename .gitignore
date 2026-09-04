@@ -1,0 +1,21 @@
+# macOS
+.DS_Store
+
+# Editors
+.idea/
+.vscode/
+
+# Agent session output
+Claude outputs/
+
+# Node (for when the monorepo lands — ticket 01)
+node_modules/
+.turbo/
+.next/
+dist/
+*.tsbuildinfo
+
+# Local env — never commit these
+.env
+.env.*
+!.env.example

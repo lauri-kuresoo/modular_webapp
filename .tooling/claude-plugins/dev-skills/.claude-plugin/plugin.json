@@ -1,0 +1,7 @@
+{
+  "name": "dev-skills",
+  "version": "0.1.0",
+  "description": "Engineering, design and writing skills: grilling, architecture review, Apple-style UI design, domain modelling, specs, tickets, TDD and prose craft.",
+  "author": { "name": "Lauri Kuresoo" },
+  "keywords": ["engineering", "architecture", "design", "writing", "planning"]
+}

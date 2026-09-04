@@ -1,0 +1,11 @@
+{
+  "name": "lauri-local",
+  "owner": { "name": "Lauri Kuresoo" },
+  "plugins": [
+    {
+      "name": "dev-skills",
+      "source": "./dev-skills",
+      "description": "39 engineering, design and writing skills."
+    }
+  ]
+}
