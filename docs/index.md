@@ -7,6 +7,12 @@ than the tickets they block, so the list can be read top to bottom.
 Work the **frontier**: any ticket whose blockers are all done. Several pairs are
 genuinely parallel (07 alongside 06, 09 alongside 06–08, 11 alongside 05–10).
 
+Run `/orchestrate` to build these tickets: it delegates each frontier ticket to
+an `implementer` subagent, checks the result with an independent `verifier`
+subagent, and merges what passes to `main`. See `docs/agents/issue-tracker.md`
+for the tracker conventions (`Blocked by`, `Status`, `Build status`) it reads
+and writes.
+
 ## Milestones
 
 | After | You have |
