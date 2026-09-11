@@ -1,0 +1,7 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# Native postinstall builds we have reviewed and allow.
+onlyBuiltDependencies:
+  - unrs-resolver

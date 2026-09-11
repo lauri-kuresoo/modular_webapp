@@ -9,6 +9,8 @@ The deliverable is the ground the other 28 tickets stand on.
 
 **Status:** ready-for-agent
 
+**Build status:** claimed
+
 ## Design and technology choices
 
 **Workspace.** pnpm workspaces for linking, Turborepo for task orchestration and
