@@ -1,0 +1,150 @@
+/**
+ * The Theme token contract.
+ *
+ * A Theme is a token set, not a palette: nine semantic colours, a type pairing,
+ * a radius scale, a density scale and a shadow level. This file declares the
+ * whole vocabulary; `presets.ts` supplies values and `emit.ts` turns them into
+ * CSS custom properties.
+ *
+ * Adding a tenth semantic colour is a platform decision. A Section that wants
+ * one is a Section reaching for a colour it should have asked for semantically.
+ */
+
+/**
+ * The nine semantic colours from spec 0001. Order is the contract's order and is
+ * what the emitter walks, so a new token cannot be added without appearing here.
+ */
+export const SEMANTIC_COLORS = [
+  "surface",
+  "surface-raised",
+  "text",
+  "text-muted",
+  "accent",
+  "accent-contrast",
+  "border",
+  "success",
+  "danger",
+] as const;
+
+export type SemanticColor = (typeof SEMANTIC_COLORS)[number];
+
+export const THEME_MODES = ["light", "dark"] as const;
+
+export type ThemeMode = (typeof THEME_MODES)[number];
+
+/**
+ * An OKLCH triple: lightness `0..1`, chroma (`0` to roughly `0.37` before
+ * leaving the sRGB gamut at any hue), hue in degrees.
+ *
+ * Colours are stored in OKLCH rather than hex because lightness is
+ * perceptually uniform there: a hover state is the same colour with `l`
+ * shifted, with no hue drift, and contrast stays predictable when a Tenant
+ * swaps presets.
+ */
+export type Oklch = readonly [l: number, c: number, h: number];
+
+export type ColorMap = Readonly<Record<SemanticColor, Oklch>>;
+
+/**
+ * The typefaces a preset may pair. Each entry names the CSS custom property the
+ * Site is expected to define — `next/font` generates one per family — plus the
+ * stack to fall back to before it loads.
+ *
+ * This is a CSS-level contract, not a TypeScript one: the Site's font module
+ * passes these same variable names to `next/font`, which requires string
+ * literals at the call site and so cannot import them from here.
+ */
+export const TYPEFACES = {
+  fraunces: {
+    variable: "--font-fraunces",
+    fallback: "Georgia, 'Times New Roman', serif",
+  },
+  karla: {
+    variable: "--font-karla",
+    fallback: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+  },
+  "space-grotesk": {
+    variable: "--font-space-grotesk",
+    fallback: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+  },
+  inter: {
+    variable: "--font-inter",
+    fallback: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+  },
+} as const;
+
+export type TypefaceId = keyof typeof TYPEFACES;
+
+export const TYPEFACE_IDS = Object.keys(TYPEFACES) as readonly TypefaceId[];
+
+/** Two families, exposed to Sections as `--font-display` and `--font-body`. */
+export type TypePairing = {
+  readonly display: TypefaceId;
+  readonly body: TypefaceId;
+};
+
+/**
+ * Radius is a scale rather than a boolean, which is half of what makes the
+ * soft/rounded versus sharp axis real rather than a colour change.
+ */
+export type RadiusScale = {
+  readonly sm: string;
+  readonly md: string;
+  readonly lg: string;
+};
+
+/**
+ * Density is the other half. `step` is the base unit the whole spacing scale is
+ * derived from — Tailwind multiplies it, so `p-6` is physically smaller in a
+ * dense preset — and `leading` is body line-height, because vertical rhythm is
+ * as much of the airy/dense impression as padding is.
+ */
+export type DensityScale = {
+  readonly step: string;
+  readonly leading: string;
+};
+
+/**
+ * A shadow level is one knob, not three values a preset picks independently.
+ * The emitter expands it to `--token-shadow-sm|md|lg`, so a preset cannot
+ * declare a soft small shadow and a crisp large one.
+ */
+export const SHADOW_LEVELS = {
+  /** No elevation. Separation comes from `border` alone. */
+  flat: {
+    sm: "0 0 0 0 rgb(0 0 0 / 0)",
+    md: "0 0 0 0 rgb(0 0 0 / 0)",
+    lg: "0 0 0 0 rgb(0 0 0 / 0)",
+  },
+  /** Wide, diffuse, low-alpha. Reads as lifted paper. */
+  soft: {
+    sm: "0 1px 2px rgb(0 0 0 / 0.04), 0 2px 8px rgb(0 0 0 / 0.05)",
+    md: "0 2px 4px rgb(0 0 0 / 0.04), 0 8px 24px rgb(0 0 0 / 0.07)",
+    lg: "0 4px 8px rgb(0 0 0 / 0.05), 0 16px 48px rgb(0 0 0 / 0.09)",
+  },
+  /** Tight, offset, higher-alpha. Reads as a hard edge over a plane. */
+  crisp: {
+    sm: "0 1px 0 rgb(0 0 0 / 0.08)",
+    md: "0 2px 0 rgb(0 0 0 / 0.1), 0 4px 8px rgb(0 0 0 / 0.06)",
+    lg: "0 4px 0 rgb(0 0 0 / 0.1), 0 8px 16px rgb(0 0 0 / 0.08)",
+  },
+} as const;
+
+export type ShadowLevel = keyof typeof SHADOW_LEVELS;
+
+/**
+ * One complete Theme. Every field is required: there is no partial preset and no
+ * merging of one preset's colours with another's type, because that is a design
+ * system with no designer.
+ */
+export type ThemePreset = {
+  /** Stable identifier. Appears in config and in emitted comments, never in UI. */
+  readonly name: string;
+  /** What a Tenant sees in the picker (ticket 15). */
+  readonly label: string;
+  readonly colors: Readonly<Record<ThemeMode, ColorMap>>;
+  readonly type: TypePairing;
+  readonly radius: RadiusScale;
+  readonly density: DensityScale;
+  readonly shadow: ShadowLevel;
+};

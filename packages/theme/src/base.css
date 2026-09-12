@@ -1,0 +1,126 @@
+/*
+ * `@salon/theme/base.css` — the base stylesheet every Site imports, after
+ * `tailwindcss` and before anything of its own.
+ *
+ * Two jobs: teach Tailwind about the Theme tokens, and carry the platform-level
+ * rules no Section should be able to forget.
+ *
+ * The `--token-*` values it references are not defined here. They come from the
+ * block `themeStyleSheet(name)` emits, which the Site inlines in its root
+ * layout. That indirection is the point: this file is identical for every
+ * Tenant, and the Theme is one `<style>` element away.
+ */
+
+/*
+ * `inline` matters. Without it Tailwind copies the token's *value* into its own
+ * variable at build time, which would freeze the light-mode colours into the
+ * stylesheet and leave the dark-mode block with nothing to override. With it,
+ * `bg-surface` compiles to `background-color: var(--token-surface)` and the
+ * media query does the rest.
+ */
+@theme inline {
+  /*
+   * Clear Tailwind's stock palette first. Without this, `bg-red-500` and
+   * `text-neutral-600` remain valid utilities, and the promise that no Section
+   * knows which Theme is active survives only as long as everyone remembers it.
+   * With it, a Section reaching for a colour outside the contract produces a
+   * class that does not exist and a visibly unstyled element in review.
+   *
+   * `transparent`, `current` and `inherit` are kept: they are structural
+   * keywords, not colours, and every one of them defers to a token somewhere up
+   * the tree.
+   */
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-inherit: inherit;
+
+  --color-surface: var(--token-surface);
+  --color-surface-raised: var(--token-surface-raised);
+  --color-text: var(--token-text);
+  --color-text-muted: var(--token-text-muted);
+  --color-accent: var(--token-accent);
+  --color-accent-contrast: var(--token-accent-contrast);
+  --color-border: var(--token-border);
+  --color-success: var(--token-success);
+  --color-danger: var(--token-danger);
+
+  --radius-sm: var(--token-radius-sm);
+  --radius-md: var(--token-radius-md);
+  --radius-lg: var(--token-radius-lg);
+
+  --shadow-sm: var(--token-shadow-sm);
+  --shadow-md: var(--token-shadow-md);
+  --shadow-lg: var(--token-shadow-lg);
+
+  --font-display: var(--token-font-display);
+  --font-body: var(--token-font-body);
+
+  /*
+   * The density scale, and the reason density is a scale rather than a boolean.
+   * Tailwind derives its whole numeric spacing scale from `--spacing`, so `p-6`
+   * and `gap-4` are physically tighter under a dense preset without a single
+   * Section changing a class.
+   */
+  --spacing: var(--token-space-step);
+  --leading-body: var(--token-leading-body);
+}
+
+@layer base {
+  /*
+   * On `html`, not `body`: the overscroll area outside the body box is painted
+   * from `html`, and a white band above a dark page on a rubber-band scroll is
+   * exactly the flash this ticket is meant to rule out.
+   */
+  html {
+    background-color: var(--token-surface);
+    color: var(--token-text);
+  }
+
+  body {
+    font-family: var(--token-font-body);
+    line-height: var(--token-leading-body);
+  }
+
+  /*
+   * The display face is a Theme decision, so headings take it by default rather
+   * than each Section remembering `font-display`.
+   */
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--token-font-display);
+    line-height: 1.15;
+  }
+}
+
+/*
+ * Reduced motion, globally, from the platform layer.
+ *
+ * Deliberately unlayered: `!important` inside a cascade layer loses to
+ * `!important` in a later layer, and Tailwind's utilities are layered. Outside
+ * every layer this wins against anything a Section can write.
+ *
+ * `0.01ms` rather than `0s` is the standard idiom — near-instant to a Visitor,
+ * but still long enough that `transitionend` and `animationend` fire, so a
+ * component that waits for one does not hang for someone with the preference on.
+ *
+ * A duration of zero cannot stop an autoplaying video; ticket 06 handles that
+ * case at the Section level. Everything a duration *can* fix is fixed here.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-delay: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-delay: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  html {
+    scroll-behavior: auto !important;
+  }
+}
