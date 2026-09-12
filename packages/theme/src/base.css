@@ -1,0 +1,245 @@
+/*
+ * `@salon/theme/base.css` — the base stylesheet every Site imports, after
+ * `tailwindcss` and before anything of its own.
+ *
+ * Two jobs: teach Tailwind about the Theme tokens, and carry the platform-level
+ * rules no Section should be able to forget.
+ *
+ * The `--token-*` values it references are not defined here. They come from the
+ * block `themeStyleSheet(name)` emits, which the Site inlines in its root
+ * layout. That indirection is the point: this file is identical for every
+ * Tenant, and the Theme is one `<style>` element away.
+ */
+
+/*
+ * `inline` matters. Without it Tailwind copies the token's *value* into its own
+ * variable at build time, which would freeze the light-mode colours into the
+ * stylesheet and leave the dark-mode block with nothing to override. With it,
+ * `bg-surface` compiles to `background-color: var(--token-surface)` and the
+ * media query does the rest.
+ */
+@theme inline {
+  /*
+   * Clear Tailwind's stock palette first. Without this, `bg-red-500` and
+   * `text-neutral-600` remain valid utilities, and the promise that no Section
+   * knows which Theme is active survives only as long as everyone remembers it.
+   * With it, a Section reaching for a colour outside the contract produces a
+   * class that does not exist and a visibly unstyled element in review.
+   *
+   * `transparent`, `current` and `inherit` are kept: they are structural
+   * keywords, not colours, and every one of them defers to a token somewhere up
+   * the tree.
+   */
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-inherit: inherit;
+
+  --color-surface: var(--token-surface);
+  --color-surface-raised: var(--token-surface-raised);
+  --color-text: var(--token-text);
+  --color-text-muted: var(--token-text-muted);
+  --color-accent: var(--token-accent);
+  --color-accent-contrast: var(--token-accent-contrast);
+  --color-border: var(--token-border);
+  --color-success: var(--token-success);
+  --color-danger: var(--token-danger);
+
+  --radius-sm: var(--token-radius-sm);
+  --radius-md: var(--token-radius-md);
+  --radius-lg: var(--token-radius-lg);
+
+  --shadow-sm: var(--token-shadow-sm);
+  --shadow-md: var(--token-shadow-md);
+  --shadow-lg: var(--token-shadow-lg);
+
+  --font-display: var(--token-font-display);
+  --font-body: var(--token-font-body);
+
+  /*
+   * The density scale, and the reason density is a scale rather than a boolean.
+   * Tailwind derives its whole numeric spacing scale from `--spacing`, so `p-6`
+   * and `gap-4` are physically tighter under a dense preset without a single
+   * Section changing a class.
+   */
+  --spacing: var(--token-space-step);
+  --leading-body: var(--token-leading-body);
+
+  /*
+   * The other half of density, and the half that does not work on its own.
+   *
+   * Every font-size utility carries a line-height with it — `text-lg` compiles
+   * to `font-size: ...; line-height: var(--tw-leading, var(--text-lg--line-height))`
+   * — and it lands in the `utilities` layer, which outranks the `body` rule
+   * below in `base`. So a Section writing `text-lg` on a paragraph silently
+   * dropped the Theme's leading. Measured before this block existed: both
+   * specimen paragraphs computed to 28px under *both* presets, identical, while
+   * `density.leading` said 1.75 for Linen and 1.45 for Slate. The leading half
+   * of the density axis reached no sized text on the page at all.
+   *
+   * `--text-*--line-height` is the seam Tailwind documents for changing that
+   * per-size default, so every size in the scale is pointed at the token here.
+   * Listing all thirteen is the point: leave one out and it is the one a Section
+   * reaches for. An explicit `leading-*` still wins where a Section means it —
+   * that utility sets `--tw-leading`, which is the first argument of the `var()`
+   * above and is consulted before this default.
+   *
+   * Flat, not scaled from Tailwind's own defaults. `density.leading` is declared
+   * as *the* body line-height, not a multiplier on somebody else's scale. And
+   * Tailwind's spread across the body sizes — 1.43 at `sm`, 1.5 at `base`, 1.56
+   * at `lg` — is not a designed ratio worth preserving: it is what falls out of
+   * snapping line-heights onto a 0.25rem grid, which is why it is not even
+   * monotonic. The genuine tightening further up the scale (1.11 at `4xl`, 1 at
+   * `5xl`) is a heading concern, and headings assert their own leading by
+   * element rather than by size — see `@layer salon-heading-leading` below.
+   */
+  --text-xs--line-height: var(--token-leading-body);
+  --text-sm--line-height: var(--token-leading-body);
+  --text-base--line-height: var(--token-leading-body);
+  --text-lg--line-height: var(--token-leading-body);
+  --text-xl--line-height: var(--token-leading-body);
+  --text-2xl--line-height: var(--token-leading-body);
+  --text-3xl--line-height: var(--token-leading-body);
+  --text-4xl--line-height: var(--token-leading-body);
+  --text-5xl--line-height: var(--token-leading-body);
+  --text-6xl--line-height: var(--token-leading-body);
+  --text-7xl--line-height: var(--token-leading-body);
+  --text-8xl--line-height: var(--token-leading-body);
+  --text-9xl--line-height: var(--token-leading-body);
+}
+
+@layer base {
+  /*
+   * On `html`, not `body`: the overscroll area outside the body box is painted
+   * from `html`, and a white band above a dark page on a rubber-band scroll is
+   * exactly the flash this ticket is meant to rule out.
+   */
+  html {
+    background-color: var(--token-surface);
+    color: var(--token-text);
+  }
+
+  body {
+    font-family: var(--token-font-body);
+    /*
+     * Covers text carrying no font-size utility at all, which inherits from
+     * here. Sized text arrives at the same token through the
+     * `--text-*--line-height` remap above, because this declaration sits in
+     * `base` and a font-size utility sits in `utilities`.
+     */
+    line-height: var(--token-leading-body);
+  }
+
+  /*
+   * The display face is a Theme decision, so headings take it by default rather
+   * than each Section remembering `font-display`.
+   *
+   * `font-family` belongs in `base`, and deliberately not in the later layer
+   * that carries heading leading: `font-body` on a heading is a legitimate
+   * Section choice, and a utility has to be able to win it.
+   */
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--token-font-display);
+  }
+}
+
+/*
+ * Heading leading, in a layer of our own that lands *after* `utilities`.
+ *
+ * The same trap as the token remap above, with the opposite fix. `line-height:
+ * 1.15` used to sit in `base`, where a font-size utility outranked it — so the
+ * moment a Section wrote `text-3xl` on a heading, the Theme's heading leading
+ * was replaced by Tailwind's per-size default and nobody could tell. Measured
+ * on the demo page before this change: the `h1`, which carries `sm:text-5xl`,
+ * computed to a ratio of exactly 1, not 1.15. The declaration had never once
+ * applied to it.
+ *
+ * Leading cannot be settled by size, which is why this is by element. `text-xl`
+ * is a lead paragraph in one Section and a card heading in the next; only the
+ * element knows which it is. So sizes carry the body token, and `h1`-`h4`
+ * overrule it here.
+ *
+ * Note the asymmetry with the reduced-motion block below, which needs `theme`
+ * for exactly the opposite reason. Layer order runs one way for normal
+ * declarations and is reversed for `!important` ones (CSS Cascade 5 §6.4.4).
+ * These are normal declarations, so last layer wins, and a fresh layer name
+ * introduced in this file is appended after `utilities` — the strongest
+ * position for a normal rule and the weakest for an important one.
+ *
+ * `var(--tw-leading, 1.15)` keeps the opt-out working: a Section writing
+ * `leading-tight` on a hero heading should get it. `--tw-leading` is the custom
+ * property Tailwind's own `leading-*` utilities set, and being honest about it:
+ * it is an internal, not a documented author-facing hook — `--tw-`-prefixed and
+ * compiler-generated. It is used here because it is the only thing that
+ * distinguishes "a Section asked for this leading" from "a font-size utility
+ * brought one along", and it fails safe: were Tailwind to rename it, the `var()`
+ * would simply always take the fallback and headings would always be 1.15,
+ * losing the opt-out rather than breaking the page.
+ *
+ * It cannot carry the *body* token instead, which is the other reason the remap
+ * above is done per size: `--tw-leading` is registered `inherits: false`, so a
+ * value set on `body` reaches nothing inside it.
+ */
+@layer salon-heading-leading {
+  h1,
+  h2,
+  h3,
+  h4 {
+    line-height: var(--tw-leading, 1.15);
+  }
+}
+
+/*
+ * Reduced motion, globally, from the platform layer.
+ *
+ * The `@layer theme` wrapper is load-bearing, not decoration. CSS Cascade 5
+ * §6.4.4 *reverses* layer order for `!important` declarations: among important
+ * author rules, declarations in *earlier* layers win, and important declarations
+ * in unlayered styles are the weakest of all. Tailwind's entry stylesheet opens
+ * with `@layer theme, base, components, utilities;`, so `theme` is the earliest
+ * layer in the document and therefore the strongest place an important rule can
+ * sit.
+ *
+ * Left unlayered, this block would sit at the bottom of that order and lose to
+ * the very thing it exists to overrule: a Section writing Tailwind's `!`
+ * modifier (`duration-500!`, `animate-spin!`) emits an important declaration
+ * into `utilities`, which would then beat it. Measured in Chrome under
+ * `--force-prefers-reduced-motion`: unlayered, `transition duration-500!`
+ * computes to `0.5s`; inside `theme` it computes to `1e-05s`.
+ *
+ * It has to be `theme` specifically, and not a layer of our own naming. Layer
+ * order is fixed by first appearance, and this file is imported *after*
+ * `tailwindcss` — so a fresh name introduced here is appended after `utilities`
+ * and lands in the weakest position available, which is the bug we started with.
+ *
+ * What still outranks this is an important declaration in a `style` attribute.
+ * Nothing in the platform writes one, and a Section that does has already left
+ * the token contract behind.
+ *
+ * `0.01ms` rather than `0s` is the standard idiom — near-instant to a Visitor,
+ * but still long enough that `transitionend` and `animationend` fire, so a
+ * component that waits for one does not hang for someone with the preference on.
+ *
+ * A duration of zero cannot stop an autoplaying video; ticket 06 handles that
+ * case at the Section level. Everything a duration *can* fix is fixed here.
+ */
+@layer theme {
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-delay: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-delay: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+
+    html {
+      scroll-behavior: auto !important;
+    }
+  }
+}
