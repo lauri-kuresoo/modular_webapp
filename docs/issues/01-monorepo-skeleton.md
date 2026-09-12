@@ -9,7 +9,7 @@ The deliverable is the ground the other 28 tickets stand on.
 
 **Status:** ready-for-agent
 
-**Build status:** changes-requested
+**Build status:** done
 
 ## Design and technology choices
 
@@ -80,3 +80,69 @@ Turbo. Not a gate, just a `pnpm lint`.
 - [ ] A Vercel project exists for `apps/demo-salon` with the app root and repo-root install command, and the current commit is deployed
 - [ ] The root README records the package list, the one-way dependency direction, and the "TypeScript source, not built artefacts" decision
 - [ ] Node and pnpm versions are pinned in the repo
+
+## Build log
+
+**Ticket 01 — done.**
+
+Built in two passes, because the first implementer was stopped part-way through
+its own self-review and the ticket reached `main` before its defects were fixed.
+
+| | |
+|---|---|
+| Branch (build) | `ticket/01-monorepo-skeleton` |
+| Final commit | `f9b27f8` |
+| Merged to `main` | `89def22` (PR #1, merged by the user; also carries `6f272d7`, an empty `apps/demo-salon/demo.txt`) |
+| Branch (fix) | `fix/01-verifier-findings` |
+| Final commit | `be68060` |
+| Merged to integration branch | `3c5a103` |
+
+**First verify — CHANGES REQUESTED.** Five of seven criteria held. Two blockers:
+a bug in `eslint.config.mjs`, and criterion 5 (Vercel) being outside any agent's
+authority.
+
+**The ESLint defect had two independent causes**, both of which had to be fixed
+for either to matter, and a first fix attempt was stopped before settling this:
+
+1. `eslint-config-next` exports an entry whose only key is `ignores` — a *global*
+   ignore in flat config. Spreading a `files` key onto it demoted it to an
+   ordinary file-scoped config, un-ignoring the output it names.
+2. Flat-config `ignores` anchor to the config file's directory. This config lives
+   at the repo root while Next's patterns are written app-root-relative, so
+   `out/**` only ever matched `<root>/out/**`, never `apps/demo-salon/out/**`.
+
+Fixed by passing the ignores-only entry through un-demoted *and* re-anchoring its
+patterns to `apps/**/${p}` — derived from the package rather than hardcoded, so
+the list cannot drift if `eslint-config-next` changes it, and tighter than `**/`
+so a `packages/*/out/` is not silently ignored.
+
+**Second verify — CLEAN.** The verifier confirmed both causes in an isolated
+fixture rather than by inference, reproduced the original defect against
+`8cc7530` as a control, and re-ran the full over-ignore matrix: generated output
+under `apps/**` ignored, real errors under both `apps/**` and `packages/**` still
+reported, `@next/next/*` and `jsx-a11y` scoped to `apps/**` only.
+
+**Criterion 5 (Vercel) is satisfied**, by the user directly — the orchestrator
+cannot push or act on a Vercel account. Project `demo-salon` is linked with root
+directory `apps/demo-salon` and the repo-root install command from
+`apps/demo-salon/vercel.json`. Deployment `dpl_8yMYErH8uEXNXPL6j9rsHqs23v6y` of
+commit `89def22` is **Ready**, target production. Confirmed serving as prerendered
+static content: `https://demo-salon-eight.vercel.app/` returns
+`x-vercel-cache: HIT` with `x-matched-path: /`, which is the deployment-level
+evidence for the spec's "zero Firestore reads on public traffic" claim. The
+generated `demo-salon-lauri-kuresoo.vercel.app` alias sits behind Deployment
+Protection and 307s to SSO; the `demo-salon-eight` alias is public.
+
+### Known-outstanding, deliberately not fixed here
+
+- `fix/01-verifier-findings` is merged to the integration branch but **not yet to
+  `origin/main`** — that needs a PR. `main` currently still carries the ESLint bug.
+- A bare root-level `eslint .` reports `no-undef` on two `dependency-cruiser.config.cjs`
+  files under `.agents/` and `.tooling/`. Pre-existing, unrelated to this ticket;
+  `turbo run lint` never sees them because it lints per-package.
+- `packages/core/src/locale.ts` (`LOCALES`, `localeSchema`, `DEFAULT_LOCALE`) is a
+  small forward reach into ticket 05's territory. Judged non-blocking; ticket 05
+  picks `next-intl` and nothing here conflicts with that.
+- Parked, unmerged, safe to delete: `wip/ticket-01-inflight` (`6659d88`) and
+  `wip/ticket-01-inflight-2` (`6b1f9c4`) hold two stopped implementers' unverified
+  in-flight edits, including an unvalidated zod-brand refactor of `packages/core`.
