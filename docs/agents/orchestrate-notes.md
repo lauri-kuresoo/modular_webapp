@@ -30,3 +30,16 @@ still runs afterwards — an implementer cannot review itself, and it has no
 
 Implementers and verifiers run on Opus. The `Agent` tool has no per-agent
 reasoning-effort parameter, so effort is the harness default.
+
+## The `implement` skill cannot be called by an implementer
+
+`.claude/agents/implementer.md` instructs the implementer to call the Skill tool
+with `implement`. That skill is configured `disable-model-invocation` — reserved
+for explicit user invocation — so the call is refused and the implementer does
+the engineering directly instead. It also cannot spawn `code-review`'s parallel
+sub-agents, having no `Agent` tool, so it runs both axes in-thread.
+
+Neither is fatal: the independent verifier is where the real check happens. But
+the implementer agent definition is telling agents to do something the harness
+forbids, and every implementer will burn a turn discovering that. Worth either
+enabling model invocation on `implement` or rewriting that instruction.
