@@ -9,6 +9,8 @@ active. A Visitor who prefers reduced motion gets no animation anywhere.
 
 **Status:** ready-for-agent
 
+**Build status:** claimed
+
 ## Design and technology choices
 
 **A Theme is a token set, not a palette.** Nine semantic colours from the spec —
