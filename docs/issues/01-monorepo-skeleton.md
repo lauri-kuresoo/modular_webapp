@@ -9,7 +9,7 @@ The deliverable is the ground the other 28 tickets stand on.
 
 **Status:** ready-for-agent
 
-**Build status:** claimed
+**Build status:** changes-requested
 
 ## Design and technology choices
 
