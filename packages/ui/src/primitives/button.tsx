@@ -36,7 +36,7 @@ export type ButtonProps = Omit<
 
 const BASE =
   "inline-flex items-center justify-center gap-2 rounded-md px-5 py-3 " +
-  "text-base leading-none font-medium transition " +
+  "font-body text-base leading-none font-medium transition " +
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent " +
   "disabled:pointer-events-none disabled:opacity-50";
 
@@ -45,5 +45,8 @@ const BASE =
  * needs an `onClick` is itself a client component and passes one through.
  */
 export function Button({ variant = "primary", type = "button", ...props }: ButtonProps) {
-  return <button type={type} className={`${BASE} ${VARIANTS[variant]}`} {...props} />;
+  // `props` is spread first on purpose. `className` is excluded from `ButtonProps`
+  // but nothing stops it arriving at runtime, and a spread placed last would let
+  // it silently replace the Theme classes — the exact hole the type is closing.
+  return <button {...props} type={type} className={`${BASE} ${VARIANTS[variant]}`} />;
 }
