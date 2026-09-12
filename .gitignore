@@ -19,6 +19,9 @@ dist/
 # would break typecheck on a fresh clone.
 next-env.d.ts
 
+# Written by the Vercel CLI when a project is linked (project/org ids, pulled env).
+.vercel/
+
 # Local env — never commit these
 .env
 .env.*
