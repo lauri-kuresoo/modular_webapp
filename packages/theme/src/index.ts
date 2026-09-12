@@ -12,9 +12,7 @@
 export {
   SEMANTIC_COLORS,
   SHADOW_LEVELS,
-  THEME_MODES,
   TYPEFACES,
-  TYPEFACE_IDS,
   type ColorMap,
   type DensityScale,
   type Oklch,
@@ -27,6 +25,6 @@ export {
   type TypePairing,
 } from "./tokens";
 
-export { THEME_NAMES, THEME_PRESETS, themePreset, type ThemeName } from "./presets";
+export { THEME_PRESETS, type ThemeName } from "./presets";
 
 export { themeStyleSheet, themeTokens } from "./emit";

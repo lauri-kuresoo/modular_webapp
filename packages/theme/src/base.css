@@ -98,9 +98,29 @@
 /*
  * Reduced motion, globally, from the platform layer.
  *
- * Deliberately unlayered: `!important` inside a cascade layer loses to
- * `!important` in a later layer, and Tailwind's utilities are layered. Outside
- * every layer this wins against anything a Section can write.
+ * The `@layer theme` wrapper is load-bearing, not decoration. CSS Cascade 5
+ * §6.4.4 *reverses* layer order for `!important` declarations: among important
+ * author rules, declarations in *earlier* layers win, and important declarations
+ * in unlayered styles are the weakest of all. Tailwind's entry stylesheet opens
+ * with `@layer theme, base, components, utilities;`, so `theme` is the earliest
+ * layer in the document and therefore the strongest place an important rule can
+ * sit.
+ *
+ * Left unlayered, this block would sit at the bottom of that order and lose to
+ * the very thing it exists to overrule: a Section writing Tailwind's `!`
+ * modifier (`duration-500!`, `animate-spin!`) emits an important declaration
+ * into `utilities`, which would then beat it. Measured in Chrome under
+ * `--force-prefers-reduced-motion`: unlayered, `transition duration-500!`
+ * computes to `0.5s`; inside `theme` it computes to `1e-05s`.
+ *
+ * It has to be `theme` specifically, and not a layer of our own naming. Layer
+ * order is fixed by first appearance, and this file is imported *after*
+ * `tailwindcss` — so a fresh name introduced here is appended after `utilities`
+ * and lands in the weakest position available, which is the bug we started with.
+ *
+ * What still outranks this is an important declaration in a `style` attribute.
+ * Nothing in the platform writes one, and a Section that does has already left
+ * the token contract behind.
  *
  * `0.01ms` rather than `0s` is the standard idiom — near-instant to a Visitor,
  * but still long enough that `transitionend` and `animationend` fire, so a
@@ -109,18 +129,20 @@
  * A duration of zero cannot stop an autoplaying video; ticket 06 handles that
  * case at the Section level. Everything a duration *can* fix is fixed here.
  */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-delay: 0.01ms !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-delay: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
+@layer theme {
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-delay: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-delay: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
 
-  html {
-    scroll-behavior: auto !important;
+    html {
+      scroll-behavior: auto !important;
+    }
   }
 }

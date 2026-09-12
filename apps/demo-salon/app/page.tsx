@@ -1,5 +1,5 @@
 import { Button, Card, Container } from "@salon/ui";
-import { themePreset } from "@salon/theme";
+import { THEME_PRESETS } from "@salon/theme";
 import { SITE_THEME } from "../site.config";
 
 /**
@@ -8,7 +8,7 @@ import { SITE_THEME } from "../site.config";
  */
 export const dynamic = "force-static";
 
-const preset = themePreset(SITE_THEME);
+const preset = THEME_PRESETS[SITE_THEME];
 
 /**
  * Hardcoded copy. Nothing on this page is configurable yet: the Composition file

@@ -1,4 +1,4 @@
-import { themePreset, type ThemeName } from "./presets";
+import { THEME_PRESETS, type ThemeName } from "./presets";
 import {
   SEMANTIC_COLORS,
   SHADOW_LEVELS,
@@ -73,7 +73,7 @@ function declarations(preset: ThemePreset, mode: ThemeMode): Declaration[] {
  * where the block lands.
  */
 export function themeTokens(name: ThemeName, mode: ThemeMode): string {
-  return declarations(themePreset(name), mode)
+  return declarations(THEME_PRESETS[name], mode)
     .map(([property, value]) => `  ${property}: ${cssValue(value)};`)
     .join("\n");
 }

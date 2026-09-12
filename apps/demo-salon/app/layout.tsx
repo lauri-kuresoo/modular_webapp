@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { themePreset, themeStyleSheet } from "@salon/theme";
+import { THEME_PRESETS, themeStyleSheet } from "@salon/theme";
 import { SITE_THEME } from "../site.config";
 import { typefaceClassNames } from "./fonts";
 import "./globals.css";
@@ -23,9 +23,9 @@ export const viewport: Viewport = {
 
 /**
  * Resolved once, at module scope, so it is computed during the build rather than
- * per request. Both are pure functions of a constant.
+ * per request. A constant lookup and a pure function of a constant.
  */
-const preset = themePreset(SITE_THEME);
+const preset = THEME_PRESETS[SITE_THEME];
 const themeCss = themeStyleSheet(SITE_THEME);
 
 export default function RootLayout({ children }: { children: ReactNode }) {

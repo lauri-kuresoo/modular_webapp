@@ -24,8 +24,14 @@ export type ButtonVariant = keyof typeof VARIANTS;
  *
  * The spec's promise is that no component accepts a colour, and a component
  * that accepts either of those accepts a colour — `style={{ color }}` directly,
- * `className="bg-[#f00]"` by the back door. Positioning a button is the
- * parent's job, done on a wrapper.
+ * or a `className` carrying an arbitrary-value background utility by the back
+ * door. Positioning a button is the parent's job, done on a wrapper.
+ *
+ * That example is described rather than written out, because Tailwind's source
+ * scanner is plain text matching and has no idea this is a comment. An
+ * arbitrary-value colour class spelled literally anywhere in this file gets
+ * scanned and emitted as a real rule into every Site's production stylesheet —
+ * a doc comment illustrating the rule would have quietly broken it.
  */
 export type ButtonProps = Omit<
   ComponentPropsWithoutRef<"button">,

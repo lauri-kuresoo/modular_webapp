@@ -53,7 +53,6 @@ import type { ThemePreset } from "./tokens";
  *   border          on surface         3.63:1   on surface-raised   3.17:1
  */
 const linen: ThemePreset = {
-  name: "linen",
   label: "Linen",
   colors: {
     light: {
@@ -109,7 +108,6 @@ const linen: ThemePreset = {
  *   border          on surface         3.50:1   on surface-raised   3.16:1
  */
 const slate: ThemePreset = {
-  name: "slate",
   label: "Slate",
   colors: {
     light: {
@@ -141,13 +139,16 @@ const slate: ThemePreset = {
   shadow: "crisp",
 };
 
+/**
+ * The presets, keyed by the name a Site puts in its config. The key *is* the
+ * identifier — there is no `name` field duplicating it — and `ThemeName` is
+ * derived from it, so a Site cannot name a Theme that does not exist.
+ *
+ * Read it by indexing: `THEME_PRESETS[name]`. There is no accessor function,
+ * because a one-line wrapper over a lookup is a second way to do the same thing
+ * and the type of the index is already exact.
+ */
 export const THEME_PRESETS = { linen, slate } as const;
 
 /** The Theme a Site names in its config. Ticket 15 widens this to six. */
 export type ThemeName = keyof typeof THEME_PRESETS;
-
-export const THEME_NAMES = Object.keys(THEME_PRESETS) as readonly ThemeName[];
-
-export function themePreset(name: ThemeName): ThemePreset {
-  return THEME_PRESETS[name];
-}

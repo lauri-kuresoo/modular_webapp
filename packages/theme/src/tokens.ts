@@ -8,6 +8,18 @@
  *
  * Adding a tenth semantic colour is a platform decision. A Section that wants
  * one is a Section reaching for a colour it should have asked for semantically.
+ *
+ * The obvious candidate for a tenth is `accent-hover`, and this ticket
+ * deliberately does not add it — the two primitives here express hover with
+ * shadow, border and surface instead. If ticket 15 revisits that, the thing to
+ * know is that "same colour, lightness shifted" does not derive safely at full
+ * chroma near the sRGB boundary, and which direction clips flips with the mode.
+ * Slate's light accent `oklch(0.546 0.2 258)` is the worked example: darkening
+ * it clips (`l-0.04` at full chroma leaves the gamut; `l-0.04` with chroma at
+ * 0.9 does not), while lightening it stays in gamut at full chroma. Its dark
+ * accent `oklch(0.7 0.15 258)` behaves the other way round. So a derived hover
+ * token is a gamut-mapping decision per preset and per mode, not one formula —
+ * which is why it is a platform call and not something a Section improvises.
  */
 
 /**
@@ -28,9 +40,13 @@ export const SEMANTIC_COLORS = [
 
 export type SemanticColor = (typeof SEMANTIC_COLORS)[number];
 
-export const THEME_MODES = ["light", "dark"] as const;
-
-export type ThemeMode = (typeof THEME_MODES)[number];
+/**
+ * Written as a union rather than derived from a `["light", "dark"]` array,
+ * because nothing iterates the modes: `themeStyleSheet` emits light on `:root`
+ * and dark inside a media query, which are structurally different rather than
+ * two passes of one loop. An array would exist only to be turned back into this.
+ */
+export type ThemeMode = "light" | "dark";
 
 /**
  * An OKLCH triple: lightness `0..1`, chroma (`0` to roughly `0.37` before
@@ -74,8 +90,6 @@ export const TYPEFACES = {
 } as const;
 
 export type TypefaceId = keyof typeof TYPEFACES;
-
-export const TYPEFACE_IDS = Object.keys(TYPEFACES) as readonly TypefaceId[];
 
 /** Two families, exposed to Sections as `--font-display` and `--font-body`. */
 export type TypePairing = {
@@ -138,9 +152,12 @@ export type ShadowLevel = keyof typeof SHADOW_LEVELS;
  * system with no designer.
  */
 export type ThemePreset = {
-  /** Stable identifier. Appears in config and in emitted comments, never in UI. */
-  readonly name: string;
-  /** What a Tenant sees in the picker (ticket 15). */
+  /**
+   * What a Tenant sees in the picker (ticket 15). The *identifier* is not a
+   * field: a preset is identified by its key in `THEME_PRESETS`, which is what
+   * `ThemeName` is derived from, so there is no second spelling of the name that
+   * could drift from the first.
+   */
   readonly label: string;
   readonly colors: Readonly<Record<ThemeMode, ColorMap>>;
   readonly type: TypePairing;
