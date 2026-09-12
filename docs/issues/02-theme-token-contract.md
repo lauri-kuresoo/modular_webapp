@@ -9,7 +9,7 @@ active. A Visitor who prefers reduced motion gets no animation anywhere.
 
 **Status:** ready-for-agent
 
-**Build status:** changes-requested
+**Build status:** in-review
 
 ## Design and technology choices
 
