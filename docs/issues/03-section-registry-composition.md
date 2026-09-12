@@ -10,6 +10,8 @@ array; adding a Section to the platform is one registry entry and nothing else.
 
 **Status:** ready-for-agent
 
+**Build status:** claimed
+
 ## Design and technology choices
 
 **The registry is one map, and it is the only map.** A section `type` string
