@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+/*
+ * Tailwind v4 is configured in CSS, not in a `tailwind.config.js` — that is what
+ * lets ticket 02 turn Theme tokens into utilities per Tenant without a JS build
+ * step. Workspace packages live outside this app, so their class names have to
+ * be pointed at explicitly.
+ */
+@source "../../../packages/ui/src";

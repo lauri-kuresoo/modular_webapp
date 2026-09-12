@@ -1,0 +1,12 @@
+node_modules
+.next
+.turbo
+pnpm-lock.yaml
+
+# Prose and agent tooling that predates this monorepo — Prettier's Markdown
+# reflow would rewrite the spec and every ticket for no benefit.
+docs/
+.agents/
+.claude/
+.tooling/
+skills-lock.json
