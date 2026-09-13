@@ -23,7 +23,16 @@ export const HOME_COMPOSITION = defineComposition([
     props: {
       eyebrow: "Demo Salon",
       heading: "A salon website that its owner can actually keep up to date.",
-      lead: `This is the reference Site for the modular salon platform. It is assembled from registered Sections rather than written by hand, and it is statically generated, so it loads on mobile data before a visitor gives up. It renders in the ${preset.label} Theme, which follows your operating system's light or dark preference.`,
+      lead: "The reference Site for the modular salon platform.",
+    },
+  },
+  {
+    type: "prose-block",
+    props: {
+      paragraphs: [
+        "This page is assembled from registered Sections rather than written by hand, and it is statically generated, so it loads on mobile data before a visitor gives up.",
+        `It is rendering in the ${preset.label} Theme, which follows your operating system’s light or dark preference. Every colour, radius, font and spacing step comes from that Theme; no Section here knows which one is active.`,
+      ],
     },
   },
 ]);
