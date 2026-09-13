@@ -2,8 +2,9 @@
  * `@salon/core` — the domain vocabulary of spec 0001, and nothing else.
  *
  * Depends on no other workspace package. Everything else may depend on it.
- * This file is the seed: branded identifiers and the locale contract. Later
- * tickets add the Tenant, Section, Service, Staff and Booking schemas here.
+ * This file is the seed: branded identifiers, the locale contract and the
+ * shape of stored Content. Later tickets add the Tenant, Service, Staff and
+ * Booking schemas here.
  */
 
 /** Nominal typing helper, so a `StaffId` is never accepted where a `ServiceId` belongs. */
@@ -21,3 +22,8 @@ export const staffId = (value: string): StaffId => value as StaffId;
 export const bookingId = (value: string): BookingId => value as BookingId;
 
 export { LOCALES, DEFAULT_LOCALE, localeSchema, type Locale } from "./locale";
+export {
+  contentDocumentSchema,
+  type SectionContent,
+  type TenantContent,
+} from "./content";
