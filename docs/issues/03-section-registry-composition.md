@@ -10,7 +10,7 @@ array; adding a Section to the platform is one registry entry and nothing else.
 
 **Status:** ready-for-agent
 
-**Build status:** claimed
+**Build status:** in-review
 
 ## Design and technology choices
 
