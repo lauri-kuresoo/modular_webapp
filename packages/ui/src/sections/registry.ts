@@ -1,5 +1,6 @@
 import type { z } from "zod";
 import { pageHeading } from "./page-heading";
+import { proseBlock } from "./prose-block";
 
 /**
  * The Section Registry: every Section the platform can render, keyed by the
@@ -13,6 +14,7 @@ import { pageHeading } from "./page-heading";
  */
 export const SECTION_REGISTRY = {
   "page-heading": pageHeading,
+  "prose-block": proseBlock,
 } as const;
 
 type Registry = typeof SECTION_REGISTRY;
