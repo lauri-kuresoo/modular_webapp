@@ -10,6 +10,8 @@ Firestore at all.
 
 **Status:** ready-for-agent
 
+**Build status:** claimed
+
 ## Design and technology choices
 
 **One Firebase project, EU region, chosen once.** The Firestore location is
