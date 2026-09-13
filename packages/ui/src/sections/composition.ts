@@ -26,9 +26,9 @@ export type Composition = readonly PlacedSection[];
  * mechanism standing between a malformed Composition and a Tenant, so nothing
  * here is ever skipped, defaulted or warned about — it throws.
  *
- * The static types make most of this unreachable from hand-written TypeScript.
- * It is checked anyway: the types vanish at a cast or an `any`, and ticket 12
- * puts a Composition within reach of data the compiler never saw.
+ * The compile-time types make most of this unreachable from hand-written
+ * TypeScript. It is checked anyway: the types vanish at a cast or an `any`, and
+ * ticket 12 puts a Composition within reach of data the compiler never saw.
  */
 export function defineComposition(entries: readonly CompositionEntry[]): Composition {
   return assignAnchorIds(entries.map(parseEntry));
@@ -111,7 +111,7 @@ const ANCHOR_ID = /^[a-z][a-z0-9-]*$/;
  *
  * The derived id is the section type for that type's first appearance and
  * `type-2`, `type-3` after it — so the common one-per-page case anchors at a
- * readable `#page-heading`. The ordinal counts every appearance of the type,
+ * readable `#page-heading`. The suffix counts every appearance of the type,
  * including ones given an explicit `id`, so renaming one Section never shifts
  * another's derived id.
  */
@@ -129,7 +129,7 @@ function assignAnchorIds(entries: readonly ParsedEntry[]): Composition {
     if (!ANCHOR_ID.test(id)) {
       throw new Error(
         `${label}: anchor id "${id}" is not a usable URL fragment — ` +
-          `lowercase letters, digits and hyphens, starting with a letter.`,
+          `use a-z, 0-9 and hyphens, starting with a letter.`,
       );
     }
     const claimant = claimedBy.get(id);

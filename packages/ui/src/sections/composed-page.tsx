@@ -11,7 +11,7 @@ import { SECTION_REGISTRY } from "./registry";
  * Each Section is wrapped in a `<section>` carrying its anchor id. That wrapper
  * lives here, not in the Sections, so a Section cannot be written without one.
  * Vertical rhythm deliberately stays with the Section: a full-bleed Hero and a
- * text block do not share one, and a padded wrapper would leave ticket 06
+ * run of paragraphs do not share one, and a padded wrapper would leave ticket 06
  * cancelling it out.
  */
 export function ComposedPage({ composition }: { composition: Composition }) {

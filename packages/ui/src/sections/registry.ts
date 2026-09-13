@@ -8,7 +8,7 @@ import { proseBlock } from "./prose-block";
  *
  * This object is the *only* enumeration of section types in the repo. There is
  * no hand-maintained union beside it and no switch statement in the renderer —
- * everything below is derived from it, so a new entry is immediately visible to
+ * everything below is derived from it, so a new entry is immediately known to
  * the type checker, to Composition autocomplete and to the fold. Adding a
  * Section to the platform is one line here plus the component's own module.
  */

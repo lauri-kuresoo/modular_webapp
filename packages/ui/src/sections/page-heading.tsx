@@ -3,7 +3,7 @@ import { Container } from "../primitives/container";
 import { defineSection } from "./define";
 
 /**
- * The page's title block: an optional eyebrow, the `<h1>`, an optional lead.
+ * The page's title: an optional eyebrow, the `<h1>`, an optional lead.
  *
  * One of the two deliberately thin Sections that exist to exercise the fold —
  * the real Sections arrive in tickets 06–08. Kept thin on purpose: designing
