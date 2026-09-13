@@ -13,7 +13,8 @@
   },
   "dependencies": {
     "@salon/core": "workspace:*",
-    "@salon/theme": "workspace:*"
+    "@salon/theme": "workspace:*",
+    "zod": "^4.5.4"
   },
   "peerDependencies": {
     "react": "^19.2.0"
