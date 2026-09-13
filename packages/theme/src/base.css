@@ -64,6 +64,48 @@
    */
   --spacing: var(--token-space-step);
   --leading-body: var(--token-leading-body);
+
+  /*
+   * The other half of density, and the half that does not work on its own.
+   *
+   * Every font-size utility carries a line-height with it — `text-lg` compiles
+   * to `font-size: ...; line-height: var(--tw-leading, var(--text-lg--line-height))`
+   * — and it lands in the `utilities` layer, which outranks the `body` rule
+   * below in `base`. So a Section writing `text-lg` on a paragraph silently
+   * dropped the Theme's leading. Measured before this block existed: both
+   * specimen paragraphs computed to 28px under *both* presets, identical, while
+   * `density.leading` said 1.75 for Linen and 1.45 for Slate. The leading half
+   * of the density axis reached no sized text on the page at all.
+   *
+   * `--text-*--line-height` is the seam Tailwind documents for changing that
+   * per-size default, so every size in the scale is pointed at the token here.
+   * Listing all thirteen is the point: leave one out and it is the one a Section
+   * reaches for. An explicit `leading-*` still wins where a Section means it —
+   * that utility sets `--tw-leading`, which is the first argument of the `var()`
+   * above and is consulted before this default.
+   *
+   * Flat, not scaled from Tailwind's own defaults. `density.leading` is declared
+   * as *the* body line-height, not a multiplier on somebody else's scale. And
+   * Tailwind's spread across the body sizes — 1.43 at `sm`, 1.5 at `base`, 1.56
+   * at `lg` — is not a designed ratio worth preserving: it is what falls out of
+   * snapping line-heights onto a 0.25rem grid, which is why it is not even
+   * monotonic. The genuine tightening further up the scale (1.11 at `4xl`, 1 at
+   * `5xl`) is a heading concern, and headings assert their own leading by
+   * element rather than by size — see `@layer salon-heading-leading` below.
+   */
+  --text-xs--line-height: var(--token-leading-body);
+  --text-sm--line-height: var(--token-leading-body);
+  --text-base--line-height: var(--token-leading-body);
+  --text-lg--line-height: var(--token-leading-body);
+  --text-xl--line-height: var(--token-leading-body);
+  --text-2xl--line-height: var(--token-leading-body);
+  --text-3xl--line-height: var(--token-leading-body);
+  --text-4xl--line-height: var(--token-leading-body);
+  --text-5xl--line-height: var(--token-leading-body);
+  --text-6xl--line-height: var(--token-leading-body);
+  --text-7xl--line-height: var(--token-leading-body);
+  --text-8xl--line-height: var(--token-leading-body);
+  --text-9xl--line-height: var(--token-leading-body);
 }
 
 @layer base {
@@ -79,19 +121,74 @@
 
   body {
     font-family: var(--token-font-body);
+    /*
+     * Covers text carrying no font-size utility at all, which inherits from
+     * here. Sized text arrives at the same token through the
+     * `--text-*--line-height` remap above, because this declaration sits in
+     * `base` and a font-size utility sits in `utilities`.
+     */
     line-height: var(--token-leading-body);
   }
 
   /*
    * The display face is a Theme decision, so headings take it by default rather
    * than each Section remembering `font-display`.
+   *
+   * `font-family` belongs in `base`, and deliberately not in the later layer
+   * that carries heading leading: `font-body` on a heading is a legitimate
+   * Section choice, and a utility has to be able to win it.
    */
   h1,
   h2,
   h3,
   h4 {
     font-family: var(--token-font-display);
-    line-height: 1.15;
+  }
+}
+
+/*
+ * Heading leading, in a layer of our own that lands *after* `utilities`.
+ *
+ * The same trap as the token remap above, with the opposite fix. `line-height:
+ * 1.15` used to sit in `base`, where a font-size utility outranked it — so the
+ * moment a Section wrote `text-3xl` on a heading, the Theme's heading leading
+ * was replaced by Tailwind's per-size default and nobody could tell. Measured
+ * on the demo page before this change: the `h1`, which carries `sm:text-5xl`,
+ * computed to a ratio of exactly 1, not 1.15. The declaration had never once
+ * applied to it.
+ *
+ * Leading cannot be settled by size, which is why this is by element. `text-xl`
+ * is a lead paragraph in one Section and a card heading in the next; only the
+ * element knows which it is. So sizes carry the body token, and `h1`-`h4`
+ * overrule it here.
+ *
+ * Note the asymmetry with the reduced-motion block below, which needs `theme`
+ * for exactly the opposite reason. Layer order runs one way for normal
+ * declarations and is reversed for `!important` ones (CSS Cascade 5 §6.4.4).
+ * These are normal declarations, so last layer wins, and a fresh layer name
+ * introduced in this file is appended after `utilities` — the strongest
+ * position for a normal rule and the weakest for an important one.
+ *
+ * `var(--tw-leading, 1.15)` keeps the opt-out working: a Section writing
+ * `leading-tight` on a hero heading should get it. `--tw-leading` is the custom
+ * property Tailwind's own `leading-*` utilities set, and being honest about it:
+ * it is an internal, not a documented author-facing hook — `--tw-`-prefixed and
+ * compiler-generated. It is used here because it is the only thing that
+ * distinguishes "a Section asked for this leading" from "a font-size utility
+ * brought one along", and it fails safe: were Tailwind to rename it, the `var()`
+ * would simply always take the fallback and headings would always be 1.15,
+ * losing the opt-out rather than breaking the page.
+ *
+ * It cannot carry the *body* token instead, which is the other reason the remap
+ * above is done per size: `--tw-leading` is registered `inherits: false`, so a
+ * value set on `body` reaches nothing inside it.
+ */
+@layer salon-heading-leading {
+  h1,
+  h2,
+  h3,
+  h4 {
+    line-height: var(--tw-leading, 1.15);
   }
 }
 
