@@ -31,15 +31,25 @@ still runs afterwards — an implementer cannot review itself, and it has no
 Implementers and verifiers run on Opus. The `Agent` tool has no per-agent
 reasoning-effort parameter, so effort is the harness default.
 
-## The `implement` skill cannot be called by an implementer
+## Subagents carry their own standards; they do not call skills
 
-`.claude/agents/implementer.md` instructs the implementer to call the Skill tool
-with `implement`. That skill is configured `disable-model-invocation` — reserved
-for explicit user invocation — so the call is refused and the implementer does
-the engineering directly instead. It also cannot spawn `code-review`'s parallel
-sub-agents, having no `Agent` tool, so it runs both axes in-thread.
+`implementer` and `verifier` used to be told to call the `implement` and
+`code-review` skills. Both instructions were dead: `implement` is configured
+`disable-model-invocation` and refused every call, and neither agent has an
+`Agent` tool, so `code-review` could not fan out into its parallel axes either.
+Every implementer burned a turn discovering this.
 
-Neither is fatal: the independent verifier is where the real check happens. But
-the implementer agent definition is telling agents to do something the harness
-forbids, and every implementer will burn a turn discovering that. Worth either
-enabling model invocation on `implement` or rewriting that instruction.
+Both definitions now carry their guidance inline and neither has the `Skill`
+tool:
+
+- **`implementer`** owns clean-code rules (naming, one-thing functions, comments
+  that record *why*, no duplicated knowledge, no speculative generality, loud
+  boundaries) and module shape (deep not wide, smallest public surface, one-way
+  dependency direction, decisions placed where callers cannot forget them).
+- **`verifier`** runs three separate axes — Spec, Standards-and-clean-code, and
+  Quality gates — and re-runs the tooling itself rather than trusting reported
+  results.
+
+The two files are coupled on purpose: the verifier judges against the clean-code
+rules written in `implementer.md`, so the implementer knows the bar and the
+verifier applies the same one. Edit them together.
