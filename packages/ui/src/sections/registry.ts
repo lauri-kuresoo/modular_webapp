@@ -32,7 +32,7 @@ export type SectionType = keyof Registry;
  */
 type CompositionEntryFor<T extends SectionType> = {
   readonly type: T;
-  /** Overrides the derived anchor id. Lowercase, digits and hyphens; unique across the page. */
+  /** Overrides the derived anchor id. Must be a unique URL fragment on the page. */
   readonly id?: string;
   readonly props: z.input<Registry[T]["propsSchema"]>;
 } & ([Registry[T]["variants"][number]] extends [never]

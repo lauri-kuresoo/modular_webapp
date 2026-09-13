@@ -17,8 +17,8 @@ export const proseBlock = defineSection({
   component: ({ props }) => (
     <Container width="prose">
       <div className="pb-12">
-        {props.paragraphs.map((paragraph) => (
-          <p key={paragraph} className="text-text-muted mt-4 text-lg first:mt-0">
+        {props.paragraphs.map((paragraph, index) => (
+          <p key={index} className="text-text-muted mt-4 text-lg first:mt-0">
             {paragraph}
           </p>
         ))}

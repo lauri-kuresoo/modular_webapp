@@ -73,7 +73,9 @@ function parseVariant(
 ): string | undefined {
   if (declared.length === 0) {
     if (variant !== undefined) {
-      throw new Error(`${label}: declares no variants, but variant "${variant}" was given.`);
+      throw new Error(
+        `${label}: this Section declares no variants, but variant "${variant}" was given.`,
+      );
     }
     return undefined;
   }

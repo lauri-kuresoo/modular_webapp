@@ -41,7 +41,7 @@ export function defineSection<const Variants extends readonly string[], Schema e
 
 type SectionDefinition<Variants extends readonly string[], Schema extends z.ZodType> = {
   readonly propsSchema: Schema;
-  /** Empty for a Section with a single appearance; a Composition may then give no `variant`. */
+  /** Empty when the Section has only one look; a Composition then gives it no `variant`. */
   readonly variants: Variants;
   readonly component: (args: SectionArgs<z.output<Schema>, Variants[number]>) => ReactNode;
 };
