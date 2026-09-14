@@ -9,11 +9,15 @@ import { defineSection } from "./define";
  * the real Sections arrive in tickets 06–08. Kept thin on purpose: designing
  * the registry around a Hero's needs would bake one Section's shape into the
  * platform.
+ *
+ * Every word it renders is the Tenant's, so every word is Content. What is left
+ * for the Composition to own is the alignment, and that is the variant — hence
+ * an empty props schema rather than an invented knob.
  */
-const propsSchema = z.object({
-  eyebrow: z.string().min(1).optional(),
-  heading: z.string().min(1),
-  lead: z.string().min(1).optional(),
+const contentSchema = z.object({
+  eyebrow: z.string().optional(),
+  heading: z.string().optional(),
+  lead: z.string().optional(),
 });
 
 const ALIGNMENTS = {
@@ -22,23 +26,30 @@ const ALIGNMENTS = {
 } as const;
 
 export const pageHeading = defineSection({
-  propsSchema,
+  propsSchema: z.object({}),
+  contentSchema,
   variants: ["left", "centred"],
-  component: ({ props, variant }) => (
-    <Container width="prose">
-      <div className={`pt-20 pb-6 ${ALIGNMENTS[variant]}`}>
-        {props.eyebrow === undefined ? null : (
-          <p className="text-text-muted text-sm font-medium tracking-widest uppercase">
-            {props.eyebrow}
-          </p>
-        )}
-        <h1 className="mt-4 text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
-          {props.heading}
-        </h1>
-        {props.lead === undefined ? null : (
-          <p className="text-text-muted mt-6 text-lg">{props.lead}</p>
-        )}
-      </div>
-    </Container>
-  ),
+  /**
+   * The empty state is nothing at all. An eyebrow or a lead with no heading
+   * above them is a caption for something that is not there, and an `<h1>` with
+   * no text announces worse to a screen reader than no heading does.
+   */
+  component: ({ variant, content }) =>
+    content.heading === undefined ? null : (
+      <Container width="prose">
+        <div className={`pt-20 pb-6 ${ALIGNMENTS[variant]}`}>
+          {content.eyebrow === undefined ? null : (
+            <p className="text-text-muted text-sm font-medium tracking-widest uppercase">
+              {content.eyebrow}
+            </p>
+          )}
+          <h1 className="mt-4 text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
+            {content.heading}
+          </h1>
+          {content.lead === undefined ? null : (
+            <p className="text-text-muted mt-6 text-lg">{content.lead}</p>
+          )}
+        </div>
+      </Container>
+    ),
 });
