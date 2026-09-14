@@ -1,5 +1,9 @@
-import { contentDocumentSchema, type SectionContent, type TenantContent } from "@salon/core";
-import type { TenantId } from "@salon/core";
+import {
+  contentDocumentSchema,
+  type SectionContent,
+  type TenantContent,
+  type TenantId,
+} from "@salon/core";
 import type { QueryDocumentSnapshot } from "firebase-admin/firestore";
 import { unstable_cache } from "next/cache";
 import { z } from "zod";
@@ -12,35 +16,33 @@ const CONTENT_COLLECTION = "content";
  * Reads a Tenant's Content, cached under a tag of its own.
  *
  * The cache is what makes the spec's "zero Firestore reads on public traffic"
- * true: a Site's pages are generated once against this read and served from the
- * edge afterwards. Ticket 12's publish webhook calls `revalidateTag` with the
- * same tag, so a Tenant's edit reaches the Site without a rebuild.
+ * true: a Site's pages are generated against this read and served from the edge
+ * afterwards. Ticket 12's publish webhook calls `revalidateTag` with the same
+ * `tenant:{id}:content` tag, so a Tenant's edit reaches their Site without a
+ * redeploy — and no other Tenant's pages are touched, because the tag carries
+ * the id.
  *
  * `unstable_cache` rather than a `"use cache"` function: the latter requires
  * Next's `cacheComponents` mode, which rejects the `dynamic = "force-static"`
- * that every Site page declares to prove it never renders per request.
+ * every Site page declares to prove it never renders per request.
  */
 export function readContent(tenantId: TenantId): Promise<TenantContent> {
   return unstable_cache(() => fetchContent(tenantId), [CONTENT_COLLECTION, tenantId], {
-    tags: [contentTag(tenantId)],
+    tags: [`tenant:${tenantId}:${CONTENT_COLLECTION}`],
   })();
-}
-
-function contentTag(tenantId: TenantId): string {
-  return `tenant:${tenantId}:content`;
 }
 
 /**
  * One collection read per Tenant, scoped by path.
  *
- * Content nests under the Tenant document, so the scoping is in the path rather
- * than in a `where` clause every future query would have to remember — and
- * fetching the whole subcollection in one round trip is what keeps
- * one-document-per-Section from costing one read per Section.
+ * Content nests under the Tenant document, so the scoping is the path rather
+ * than a `where` clause every future query would have to remember. Fetching the
+ * whole subcollection in one round trip is also what keeps one document per
+ * Section from costing one read per Section.
  */
 async function fetchContent(tenantId: TenantId): Promise<TenantContent> {
   if (FIRESTORE === undefined) {
-    // The unconfigured deployment described on `FIRESTORE`; already warned about.
+    // The unconfigured process described on `FIRESTORE`, which has already said so.
     return {};
   }
   const documents = await FIRESTORE.collection("tenants")
@@ -48,7 +50,9 @@ async function fetchContent(tenantId: TenantId): Promise<TenantContent> {
     .collection(CONTENT_COLLECTION)
     .get();
 
-  return Object.fromEntries(documents.docs.map((document) => [document.id, parse(document)]));
+  return Object.fromEntries(
+    documents.docs.map((document) => [document.id, parseContentDocument(document)]),
+  );
 }
 
 /**
@@ -57,7 +61,7 @@ async function fetchContent(tenantId: TenantId): Promise<TenantContent> {
  * between that drift and a Site, so a failure names the document path and the
  * offending field and stops the build.
  */
-function parse(document: QueryDocumentSnapshot): SectionContent {
+function parseContentDocument(document: QueryDocumentSnapshot): SectionContent {
   const content = contentDocumentSchema.safeParse(document.data());
   if (!content.success) {
     throw new Error(

@@ -1,30 +1,36 @@
 import { z } from "zod";
 
 /**
- * One Section's Content document: the Tenant-owned values inside that Section,
- * keyed by field name.
+ * One Section's Content: the Tenant-owned values inside it, keyed by field name.
  *
- * Text is the only value kind v1 stores — images arrive with ticket 13 and
- * prices with ticket 14, and each widens this schema rather than going around
- * it. Keeping the stored shape flat is what lets `@salon/data` reject a drifted
- * document (a number typed into a field by hand, a nested map) without knowing
- * anything about Sections.
+ * Text is the only value kind v1 stores — images arrive with ticket 13, and
+ * prices and durations live on Service documents from ticket 14, not here. A
+ * number or a nested map in a Content document is therefore drift, and parsing
+ * it here is what turns that drift into a named error rather than
+ * `[object Object]` on a Tenant's Site.
  *
- * Unrecognised keys are deliberately *not* an error. A field dropped from a
- * Section's schema leaves its value behind in Firestore, and a stale key must
- * not take a Tenant's Site down; the Section's own schema decides which keys it
- * reads.
+ * *Which* fields a Section reads is deliberately not knowable here: `@salon/core`
+ * depends on nothing, and the field list belongs with the Section that renders
+ * it. So this schema fixes the storage shape, and `@salon/ui` parses each
+ * document a second time against the Section's own content schema.
+ *
+ * A field the Tenant cleared in ticket 12's editor arrives as `""`. Dropping it
+ * on the way in means "absent" is the only empty case that exists downstream —
+ * otherwise every Section, forever, has to treat a blank string and a missing
+ * key alike, and the first one that forgets renders an empty heading.
  */
-export const contentDocumentSchema = z.record(z.string(), z.string());
+export const contentDocumentSchema = z
+  .record(z.string(), z.string())
+  .transform((document) =>
+    Object.fromEntries(Object.entries(document).filter(([, value]) => value.trim() !== "")),
+  );
 
-export type SectionContent = z.infer<typeof contentDocumentSchema>;
+export type SectionContent = z.output<typeof contentDocumentSchema>;
 
 /**
  * Every Content document a Tenant has, keyed by the anchor id of the Section it
- * fills.
- *
- * This is the whole vocabulary `@salon/data` and `@salon/ui` share about
- * Content: one reads it, the other folds it over a Composition, and neither
- * imports the other.
+ * fills — the ids ticket 03's `defineComposition` assigns. That key is the whole
+ * contract between the two halves: `@salon/data` reads documents under it,
+ * `@salon/ui` looks one up per placed Section, and neither imports the other.
  */
 export type TenantContent = Readonly<Record<string, SectionContent>>;
