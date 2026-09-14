@@ -10,7 +10,7 @@ Firestore at all.
 
 **Status:** ready-for-agent
 
-**Build status:** in-review
+**Build status:** changes-requested
 
 ## Design and technology choices
 
