@@ -132,3 +132,26 @@ For each, in the Vercel project settings:
 
 Root Directory is a dashboard-only setting; it cannot be committed. Everything
 that can live in the repo lives in `apps/<slug>/vercel.json`.
+
+### Firebase
+
+One Firebase project for the whole platform, holding every Tenant under
+`tenants/{tenantId}/**`.
+
+**Firestore and Storage both live in `eur3`** (the `europe-west` multi-region:
+Belgium and the Netherlands). Chosen for the spec's compliance requirement that
+Tenant data stays in the EU, and recorded here because **a Firestore location is
+immutable** — changing it means a new project and a data migration.
+
+Rules are deny-all and they are the platform's substitute for rules tests, so
+they are deployed from this repo rather than edited in the console:
+
+```sh
+npx firebase-tools deploy --only firestore:rules,storage --project <project-id>
+```
+
+Each Site's Vercel project needs two build-time environment variables, described
+in `apps/<slug>/.env.example`: `TENANT_ID`, and `FIREBASE_SERVICE_ACCOUNT`
+holding a base64-encoded service account JSON. A build without them reads no
+Content and every Section renders its empty state, which keeps the repo
+buildable without production credentials on a contributor's machine.
