@@ -14,7 +14,7 @@ import { defineSection } from "./define";
  * for the Composition to own is the alignment, and that is the variant — hence
  * an empty props schema rather than an invented knob.
  */
-const contentSchema = z.object({
+const contentSchema = z.strictObject({
   eyebrow: z.string().optional(),
   heading: z.string().optional(),
   lead: z.string().optional(),
