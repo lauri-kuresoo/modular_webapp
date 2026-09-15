@@ -10,6 +10,8 @@ flag them.
 
 **Status:** ready-for-agent
 
+**Build status:** claimed
+
 ## Design and technology choices
 
 **This lands before the Section build-out on purpose.** Per-locale content
