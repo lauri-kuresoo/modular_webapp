@@ -12,3 +12,4 @@
 import "server-only";
 
 export { forTenant, type TenantRepository } from "./tenant-repository";
+export { siteTenant } from "./site-tenant";

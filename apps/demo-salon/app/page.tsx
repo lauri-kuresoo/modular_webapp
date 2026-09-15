@@ -1,7 +1,6 @@
-import { forTenant } from "@salon/data";
+import { forTenant, siteTenant } from "@salon/data";
 import { ComposedPage } from "@salon/ui";
 import { HOME_COMPOSITION } from "../composition";
-import { SITE_TENANT } from "../site.config";
 
 /**
  * Generated at build time, explicitly. Public traffic must cause zero Firestore
@@ -21,7 +20,7 @@ export const dynamic = "force-static";
  * `@salon/ui` and out of anything a browser loads.
  */
 export default async function HomePage() {
-  const content = await forTenant(SITE_TENANT).content();
+  const content = await forTenant(siteTenant()).content();
 
   return (
     <main>

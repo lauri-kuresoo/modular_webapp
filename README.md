@@ -90,6 +90,18 @@ which is exactly the set of consumers this platform has.
 A package's `build` script is therefore `tsc --noEmit`. It emits nothing; it
 verifies. `turbo.json` declares empty `outputs` for those tasks accordingly.
 
+**A Site's build is not cached by Turborepo, a package's is.** A package build is
+a pure function of source, so it caches. A Site build reads that Tenant's Content
+out of Firestore, which turbo cannot hash — replaying a cached build would
+redeploy the previous build's words and there would be no way to tell. So the
+generic `build` task sets `cache: false` and each package's `build` opts back
+in with `cache: true`; a Site added later inherits the safe default rather than
+having to remember it.
+
+`turbo.json` also declares the `build` task's `env`. Turborepo runs tasks in
+strict env mode, so a variable it does not name never reaches `next build`,
+whatever the deployment sets.
+
 **When you add a package**, add it to that table, to the consuming app's
 `transpilePackages` in `next.config.ts`, and — if it contains components — to
 the `@source` list in the app's `app/globals.css` so Tailwind scans it.
@@ -152,6 +164,11 @@ npx firebase-tools deploy --only firestore:rules,storage --project <project-id>
 
 Each Site's Vercel project needs two build-time environment variables, described
 in `apps/<slug>/.env.example`: `TENANT_ID`, and `FIREBASE_SERVICE_ACCOUNT`
-holding a base64-encoded service account JSON. A build without them reads no
+holding a base64-encoded service account JSON. A build with neither reads no
 Content and every Section renders its empty state, which keeps the repo
 buildable without production credentials on a contributor's machine.
+
+A build with the credential and no `TENANT_ID` **fails**, by design: a Site that
+can reach Firestore and has not been told whose Content to read would serve
+whichever Tenant a default named, and on a Site scaffolded from this one that
+default is somebody else's.
