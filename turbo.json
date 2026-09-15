@@ -4,7 +4,8 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "env": ["TENANT_ID", "FIREBASE_SERVICE_ACCOUNT"],
+      "cache": false
     },
     "typecheck": {
       "dependsOn": ["^typecheck"]
@@ -17,10 +18,10 @@
       "persistent": true
     },
 
-    "@salon/core#build": { "dependsOn": ["^build"], "outputs": [] },
-    "@salon/theme#build": { "dependsOn": ["^build"], "outputs": [] },
-    "@salon/ui#build": { "dependsOn": ["^build"], "outputs": [] },
-    "@salon/data#build": { "dependsOn": ["^build"], "outputs": [] },
-    "@salon/booking#build": { "dependsOn": ["^build"], "outputs": [] }
+    "@salon/core#build": { "dependsOn": ["^build"], "outputs": [], "env": [], "cache": true },
+    "@salon/theme#build": { "dependsOn": ["^build"], "outputs": [], "env": [], "cache": true },
+    "@salon/ui#build": { "dependsOn": ["^build"], "outputs": [], "env": [], "cache": true },
+    "@salon/data#build": { "dependsOn": ["^build"], "outputs": [], "env": [], "cache": true },
+    "@salon/booking#build": { "dependsOn": ["^build"], "outputs": [], "env": [], "cache": true }
   }
 }
