@@ -30,9 +30,13 @@ export const pageHeading = defineSection({
   contentSchema,
   variants: ["left", "centred"],
   /**
-   * The empty state is nothing at all. An eyebrow or a lead with no heading
-   * above them is a caption for something that is not there, and an `<h1>` with
-   * no text announces worse to a screen reader than no heading does.
+   * The empty state renders nothing, and that is the decision rather than an
+   * omission. A Site is public from the moment it deploys, so placeholder copy
+   * for an unseeded Tenant would be placeholder copy shown to visitors; an
+   * eyebrow or a lead with no heading above them is a caption for something that
+   * is not there; and an `<h1>` with no text announces worse to a screen reader
+   * than no heading does. `ComposedPage` still emits this Section's anchor
+   * `<section>`, so a half-seeded Tenant is inspectable rather than a 500.
    */
   component: ({ variant, content }) =>
     content.heading === undefined ? null : (
