@@ -5,3 +5,11 @@ packages:
 # Native postinstall builds we have reviewed and allow.
 onlyBuiltDependencies:
   - unrs-resolver
+
+# Postinstall builds we have reviewed and decline. Both are optional native or
+# codegen steps: gRPC reads and writes against Firestore work with them unrun,
+# and declining them here turns an "Ignored build scripts" warning on every
+# install into a recorded decision.
+ignoredBuiltDependencies:
+  - "@firebase/util"
+  - protobufjs

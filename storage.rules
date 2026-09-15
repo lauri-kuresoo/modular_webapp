@@ -1,0 +1,16 @@
+rules_version = '2';
+
+// Deny-all, for the same reason as `firestore.rules`, which carries the full
+// argument.
+//
+// Consequence for ticket 13: a Tenant's images cannot be fetched by a public
+// download URL, because there is no rule that would allow one. They are served
+// through the Site's image optimiser from a URL the server signs, which is also
+// what keeps a bucket path from becoming a public, unlisted file share.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}

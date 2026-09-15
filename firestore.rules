@@ -1,0 +1,20 @@
+rules_version = '2';
+
+// Deny-all, on every path, deliberately and totally.
+//
+// All Tenant data is read and written server-side by `TenantRepository` under
+// the Admin SDK, which bypasses these rules. The browser talks to Firebase for
+// Auth and nothing else, so there is no legitimate client read to allow — and a
+// rule with nothing to express has nothing to get wrong. The spec accepts
+// shipping without rules tests on exactly this basis.
+//
+// The guarantee is all-or-nothing: the moment one path gets a real rule, "no
+// client can reach any Tenant's data" stops being true by construction and the
+// rules tests the spec traded away are owed again.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
