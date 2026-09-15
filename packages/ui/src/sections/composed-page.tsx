@@ -1,4 +1,4 @@
-import type { SectionContent, TenantContent } from "@salon/core";
+import { resolveContent, type Locale, type SectionContent, type TenantContent } from "@salon/core";
 import type { ReactNode } from "react";
 import { z } from "zod";
 import type { Composition } from "./composition";
@@ -20,19 +20,27 @@ import { SECTION_REGISTRY } from "./registry";
  * would be a Site quietly serving none of its Tenant's words, and the whole
  * point of the prop is that the app layer — the only layer allowed to touch
  * `@salon/data` — is the one that fetched it.
+ *
+ * `locale` is a prop rather than something read from `next-intl`'s server
+ * context, so this stays a pure function of its arguments: the guarantee that
+ * every Site page prerenders is the one thing this platform cannot afford to
+ * make conditional on a request-scoped lookup. A required prop cannot be
+ * forgotten either — omitting it is a type error.
  */
 export function ComposedPage({
   composition,
   content,
+  locale,
 }: {
   composition: Composition;
   content: TenantContent;
+  locale: Locale;
 }) {
   return (
     <>
       {composition.map((section) => (
         <section key={section.id} id={section.id}>
-          {renderSection(section, content[section.id])}
+          {renderSection(section, content[section.id], locale)}
         </section>
       ))}
     </>
@@ -42,6 +50,7 @@ export function ComposedPage({
 function renderSection(
   section: Composition[number],
   stored: SectionContent | undefined,
+  locale: Locale,
 ): ReactNode {
   const { component, contentSchema } = SECTION_REGISTRY[section.type];
   /*
@@ -57,17 +66,22 @@ function renderSection(
   return render({
     props: section.props,
     variant: section.variant,
-    content: parseContent(contentSchema, stored, section.id),
+    content: parseContent(contentSchema, stored, locale, section.id),
   });
 }
 
 /**
- * The second parse of a Content document, and the one that knows what the
- * Section actually reads: `@salon/data` has already established that the stored
- * document is text keyed by field name, and cannot know more than that without
- * importing this package.
+ * The fold's single locale resolution, and the second parse of a Content
+ * document — the one that knows what the Section actually reads. `@salon/data`
+ * has already established that the stored document is per-locale text keyed by
+ * field name, and cannot know more than that without importing this package.
  *
- * A Section nobody has written a document for parses `{}` here instead. Every
+ * Resolving here, once, is what makes the fallback chain unbypassable: a Section
+ * is handed plain strings, so its `contentSchema` reads `z.string().optional()`
+ * and it never holds the locale map it could have indexed wrongly. Ticket 06's
+ * Sections inherit that without doing anything.
+ *
+ * A Section nobody has written a document for resolves `{}` here instead. Every
  * `contentSchema` accepts that — `defineSection` refuses one that does not — so
  * a half-seeded Tenant renders empty states rather than a failed page, while a
  * document that *is* there and is wrong still throws.
@@ -75,9 +89,10 @@ function renderSection(
 function parseContent(
   contentSchema: z.ZodType,
   stored: SectionContent | undefined,
+  locale: Locale,
   anchorId: string,
 ): unknown {
-  const content = contentSchema.safeParse(stored ?? {});
+  const content = contentSchema.safeParse(resolveContent(stored ?? {}, locale));
   if (!content.success) {
     throw new Error(
       `Content for Section "${anchorId}" does not match what that Section reads.\n` +

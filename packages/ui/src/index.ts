@@ -12,6 +12,10 @@
  * The Section Registry is deliberately not exported. A Site composes a page
  * through `defineComposition` and `ComposedPage`; registering a Section is an
  * edit inside this package.
+ *
+ * The locale routing policy and the UI dictionaries sit behind `@salon/ui/i18n`
+ * instead, because a Site imports them from `proxy.ts` and `i18n/request.ts`,
+ * neither of which should drag a Section into its bundle.
  */
 export { Container, type ContainerProps, type ContainerWidth } from "./primitives/container";
 export { Button, type ButtonProps, type ButtonVariant } from "./primitives/button";
@@ -19,3 +23,6 @@ export { Card, type CardElevation, type CardProps } from "./primitives/card";
 
 export { defineComposition, type Composition } from "./sections/composition";
 export { ComposedPage } from "./sections/composed-page";
+
+export { LocaleSwitcher } from "./chrome/locale-switcher";
+export { localeAlternates } from "./i18n/alternates";

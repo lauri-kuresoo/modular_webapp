@@ -13,3 +13,14 @@ import type { ThemeName } from "@salon/theme";
  * preset when it is generated, so there is no runtime Theme lookup.
  */
 export const SITE_THEME: ThemeName = "linen";
+
+/**
+ * The origin this Site is served from, and the base every canonical and
+ * `hreflang` URL is resolved against.
+ *
+ * A constant in git rather than an environment variable: it is the same for
+ * every build of this Site, and a canonical URL that varies with a deployment
+ * variable is a canonical URL that can silently point a preview deployment's
+ * `hreflang` at itself.
+ */
+export const SITE_URL = "https://demo-salon.example";

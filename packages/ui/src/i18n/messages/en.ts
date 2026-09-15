@@ -1,0 +1,8 @@
+import type { UiMessages } from "./et";
+
+/** The English half of the library's UI strings. Complete by construction: see `et.ts`. */
+export const en: UiMessages = {
+  localeSwitcher: {
+    label: "Choose language",
+  },
+};

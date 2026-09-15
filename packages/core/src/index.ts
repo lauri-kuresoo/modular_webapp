@@ -22,4 +22,11 @@ export const staffId = (value: string): StaffId => value as StaffId;
 export const bookingId = (value: string): BookingId => value as BookingId;
 
 export { LOCALES, DEFAULT_LOCALE, localeSchema, type Locale } from "./locale";
-export { contentDocumentSchema, type SectionContent, type TenantContent } from "./content";
+export {
+  contentDocumentSchema,
+  resolveContent,
+  untranslatedFields,
+  type LocalizedText,
+  type SectionContent,
+  type TenantContent,
+} from "./content";
