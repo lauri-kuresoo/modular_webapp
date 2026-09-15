@@ -22,6 +22,11 @@ next-env.d.ts
 # Written by the Vercel CLI when a project is linked (project/org ids, pulled env).
 .vercel/
 
+# Written by the Firebase CLI and its emulators.
+.firebase/
+firebase-debug.log
+firestore-debug.log
+
 # Local env — never commit these
 .env
 .env.*

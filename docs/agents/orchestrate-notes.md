@@ -53,3 +53,37 @@ tool:
 The two files are coupled on purpose: the verifier judges against the clean-code
 rules written in `implementer.md`, so the implementer knows the bar and the
 verifier applies the same one. Edit them together.
+
+## The defect classes this project actually hits
+
+The spec's Testing Decisions rules out automated tests and CI quality gates in
+v1, on the strategy of *designing defect classes out* rather than detecting them,
+plus the gates that come free with the build (`tsc` failing the deploy).
+
+Four tickets in, the defects that have actually shipped are none of the classes
+it designed out. All three share one shape — **a decision that looks correct and
+silently never applies** — and all three are invisible to `tsc`, to lint, and to
+review by eye:
+
+| Class | Shipped on | Found by |
+|---|---|---|
+| Tailwind's scanner reads doc comments, emitting live CSS rules from prose | 02, 03 | manual built-CSS selector diff |
+| A platform CSS rule placed in a cascade layer where it is outranked | 02 (twice) | one-off browser measurement |
+| A build-time read cached for a year, surviving in `.next/cache` | 04 | manual seed-A/seed-B reproduction |
+
+Each was found by a verifier re-deriving the check from scratch, which is most of
+why verifications have run 15–90 minutes. Each was then recorded as
+"known-outstanding" in a build log, with no owner and nothing preventing the next
+occurrence — and the first class duly recurred on the very next ticket.
+
+**What has been done about it:** `.claude/agents/verifier.md` now carries these as
+standing invariants every verifier runs regardless of the ticket's subject, so
+they are executed consistently rather than rediscovered. That makes detection
+repeatable. It does not make it automatic.
+
+**What has not been decided, and is the user's call, not the orchestrator's:**
+whether the no-CI-gates position is still right now that the failure mode is
+known. The spec's own logic points at designing these out rather than detecting
+them — for instance scoping Tailwind's `@source` so prose cannot reach the
+scanner at all, which removes the first class entirely rather than checking for
+it. That is a spec amendment, not an orchestration decision.
