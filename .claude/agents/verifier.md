@@ -82,16 +82,35 @@ So a build-time read can serve data edited long ago. If a branch reads external
 data at build time, prove an edit reaches the page with `.next/cache` **preserved**,
 not deleted.
 
-**Static prerender.** `turbo run build --force` must report `┌ ○ /` under
-`○ (Static) prerendered as static content`. The spec's "zero Firestore reads on
-public traffic" claim rests on this, and the deployed Site is confirmed serving
-from edge cache. A branch that makes `/` dynamic is a hard finding whatever else
-it does.
+**Static prerender.** `turbo run build --force` must report every Site route
+under `○ (Static)` or `● (SSG)`; no `ƒ (Dynamic)` route may appear. Since ticket
+05 gave `/` a `[locale]` segment the expected shape is `└ /[locale]` with one
+`● /<locale>` line per locale — judge against the requirement, not against a
+literal route string, which changes as the route tree grows. The spec's "zero
+Firestore reads on public traffic" claim rests on this, and the deployed Site is
+confirmed serving from edge cache. A branch that makes a Site page render per
+request is a hard finding whatever else it does.
 
-**Server-only boundaries.** No `"use client"` anywhere; no `firebase-admin`,
-credential strings, section code or theme tokens in any `.next/static` chunk. The
-strongest form: serve the built app with the credential env var unset and confirm
-the `[@salon/data]` warning never fires — if the data module had loaded, it would.
+A dynamic segment brings its own failure mode: without `dynamicParams = false` it
+acts as a catch-all, so `/favicon.ico` renders the page per request and pulls
+`@salon/data` into the serving process. Measured on ticket 05 — the
+`[@salon/data]` warning fired at request time and the render then 500'd.
+
+**Routes that escape the layout.** A segment holding the root layout leaves every
+route outside it with Next's synthesised bare layout: no `lang`, no Theme, no
+fonts. Ticket 05 shipped this — moving the layout under `[locale]` stripped
+`/_not-found` of all three, and dotted paths like `/favicon.ico` bypass the proxy
+matcher and land there. Check the prerendered HTML of *every* route the build
+emits, `_not-found` included, for `lang=` and a `--token-` occurrence. Reading the
+layout source tells you nothing about which routes it wraps.
+
+**Server-only boundaries.** No `firebase-admin`, credential strings, section code
+or theme tokens in any `.next/static` chunk. `"use client"` is not banned outright
+— ticket 05 spent the repo's first one on the `LocaleSwitcher`, recorded in
+`README.md` — but each new one is a judgement call to report, with its client-JS
+cost measured, not a boundary to wave through. The strongest form: serve the built
+app with the credential env var unset and confirm the `[@salon/data]` warning never
+fires — if the data module had loaded, it would.
 
 Report each as checked-and-clean or as a finding. "Not applicable to this ticket"
 is an acceptable answer; silence is not.
