@@ -19,8 +19,11 @@ const localizedTextSchema = z.object({
  * `requested → Estonian` always terminates in a real string. That guarantee is
  * encoded in the type rather than in a runtime default because a type cannot be
  * forgotten: there is no way to hold a `LocalizedText` and not have Estonian.
+ *
+ * Not exported: `SectionContent` is the shape the platform passes around, and
+ * the one caller that will want to name a single field is ticket 12's editor.
  */
-export type LocalizedText = z.output<typeof localizedTextSchema>;
+type LocalizedText = z.output<typeof localizedTextSchema>;
 
 /**
  * What a per-locale field has to look like in Firestore, quoted in the parse
@@ -114,10 +117,18 @@ export function resolveContent(
   locale: Locale,
 ): Readonly<Record<string, string>> {
   return Object.fromEntries(
-    Object.entries(content).map(
-      ([field, text]) => [field, text[locale] ?? text[DEFAULT_LOCALE]] as const,
-    ),
+    Object.entries(content).map(([field, text]) => [field, resolveText(text, locale)] as const),
   );
+}
+
+/**
+ * The fallback chain itself, written once: the locale asked for, then Estonian.
+ * It returns a `string` rather than `string | undefined` only because
+ * `DEFAULT_LOCALE` keeps its literal type, so the compiler can see that a
+ * `LocalizedText` has that key.
+ */
+function resolveText(text: LocalizedText, locale: Locale): string {
+  return text[locale] ?? text[DEFAULT_LOCALE];
 }
 
 /**

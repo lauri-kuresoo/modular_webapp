@@ -24,6 +24,13 @@ const LOCALE_NAMES: Record<Locale, string> = {
  * That is also what makes the switcher survive localised path segments if they
  * are ever adopted: both halves go through `@salon/ui/src/i18n/navigation`.
  *
+ * An explicit `locale` prop makes `next-intl` force the prefix on, so the
+ * Estonian entry renders `/et` even though Estonian is unprefixed, and the proxy
+ * answers `/et` with a redirect to `/`. One redirect on a click, and `/et` still
+ * serves no page of its own; building the href by hand to avoid it would put a
+ * second URL-shaping rule outside `routing`, which is the thing this platform is
+ * keeping to one place.
+ *
  * The one client component on a Site, and it is one because the current path is
  * only knowable in the browser. It renders real `<a>` elements, so it still
  * works before its JavaScript arrives.

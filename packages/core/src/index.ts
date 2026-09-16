@@ -26,7 +26,6 @@ export {
   contentDocumentSchema,
   resolveContent,
   untranslatedFields,
-  type LocalizedText,
   type SectionContent,
   type TenantContent,
 } from "./content";
