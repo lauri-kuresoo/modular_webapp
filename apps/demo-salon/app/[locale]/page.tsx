@@ -13,10 +13,13 @@ import { localeParam } from "./locale-param";
 export const dynamic = "force-static";
 
 /**
- * Only the locales `generateStaticParams` enumerated exist. `[locale]` would
- * otherwise act as a catch-all, and `/favicon.ico` or a typo would render this
- * page per request — which is both a Firestore read on public traffic and a
- * second URL serving the Estonian page for Google to weigh against `/`.
+ * Only the locales `generateStaticParams` enumerated exist; anything else is a
+ * 404. `[locale]` would otherwise act as a catch-all — measured with
+ * `dynamicParams = true`, a request for `/favicon.ico` rendered this page per
+ * request, loading `@salon/data` into the serving process, which is precisely
+ * the Firestore read on public traffic the spec rules out. (It then failed on
+ * `localeParam`'s parse, so the boundary holds either way; what `false` removes
+ * is the render.)
  */
 export const dynamicParams = false;
 
