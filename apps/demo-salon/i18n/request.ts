@@ -12,7 +12,7 @@ import { locale as localeRootParam } from "next/root-params";
  * because that is where `next-intl`'s plugin looks for it.
  *
  * The locale comes from the `[locale]` root param, which is a build-time value
- * during static generation, so reading it keeps every page prerenderable. It is
+ * during prerendering, so reading it keeps every page prerenderable. It is
  * parsed rather than trusted: an unparseable value means a page outside the
  * `[locale]` segment rendered, and the platform would rather that be a failed
  * build than a page silently served in Estonian.

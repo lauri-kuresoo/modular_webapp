@@ -14,7 +14,7 @@ import { getPathname } from "./navigation";
  * neither. It is Estonian, the same page `/` already serves, which is consistent
  * with this platform doing no `Accept-Language` negotiation of its own.
  *
- * Paths, not absolute URLs: Next resolves them against the layout's
+ * Paths, not whole URLs: Next resolves them against the layout's
  * `metadataBase`, so the Site's own origin is stated once, in the Site.
  */
 export function localeAlternates(href: string, locale: Locale): Metadata["alternates"] {

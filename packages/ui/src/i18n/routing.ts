@@ -22,8 +22,8 @@ import { defineRouting } from "next-intl/routing";
  *   cookie. A locale cookie would be the exception that breaks that claim.
  * - **No alternate `Link` headers**: `hreflang` is emitted into the document
  *   head by `localeAlternates` instead, so it is one fact in one place — and a
- *   visible one, since a header is invisible in the prerendered HTML this
- *   platform's correctness rests on.
+ *   fact you can read, since a response header does not appear in the
+ *   prerendered HTML this platform's correctness rests on.
  *
  * Path segments are *not* localised; see the decision recorded in `README.md`.
  */

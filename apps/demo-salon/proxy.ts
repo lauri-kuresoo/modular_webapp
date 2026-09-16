@@ -18,8 +18,8 @@ export const config = {
    * this object statically, out of the module text, and cannot follow an import
    * to find it.
    *
-   * Skips anything with a file extension and Next's own internals, so static
-   * assets are served without a locale decision being made about them.
+   * Skips anything with a file extension and Next's own internals, so an asset
+   * request is served without a locale decision being made about it.
    */
   matcher: "/((?!_next|_vercel|.*\\..*).*)",
 };
