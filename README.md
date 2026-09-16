@@ -121,6 +121,23 @@ the `@source` list in the app's `app/globals.css` so Tailwind scans it.
   `moduleResolution: "bundler"`, shared from `tsconfig.base.json`.
   `noUncheckedIndexedAccess` is on from the start because the availability
   arithmetic indexes into Cell arrays constantly.
+- **`next-intl`, Estonian unprefixed.** `/` is Estonian and `/en/…` is English,
+  from the single `routing` in `@salon/ui/i18n`. No Site declares its own
+  strategy, and no locale is negotiated from `Accept-Language` or remembered in
+  a cookie: the URL is the only thing that decides which locale a page is in.
+
+### Path segments are the same in every locale
+
+The Estonian page at `/services` is the English page at `/en/services`; there is
+no `/teenused`. `next-intl` can map localised segments, and adding that map later
+rewrites every URL the Tenant has already published, so the decision is taken now
+rather than deferred: identical segments, because a path is the Platform
+Operator's vocabulary rather than the Tenant's words, and renaming a page in one
+locale should not change the other locale's URL.
+
+Everything that builds a URL goes through `Link`, `usePathname` and `getPathname`
+in `@salon/ui/src/i18n/navigation.ts`, so reversing this decision is a
+`pathnames` map added to `routing` and nothing else.
 
 ### The type checker is the only quality gate
 
