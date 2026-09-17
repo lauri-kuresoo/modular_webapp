@@ -9,10 +9,22 @@ const nextConfig: NextConfig = {
   transpilePackages: ["@salon/core", "@salon/data", "@salon/theme", "@salon/ui"],
   experimental: {
     /**
-     * Switches on `app/global-not-found.tsx`, which is the only way to give a
-     * 404 the Site's document when the root layout lives under `[locale]`.
-     * Still behind a flag in Next 16.3; the alternative was a 404 served with
-     * no `lang` and no Theme, so the flag is the lesser risk.
+     * What Next documents as the switch for `app/global-not-found.tsx` — the
+     * only way to give a 404 the Site's own document when the root layout lives
+     * under `[locale]`. On the builder this repo actually uses it switches on
+     * nothing: Next 16 defaults to Turbopack, which honours the file convention
+     * either way. Measured, by deleting this whole `experimental` key and
+     * rebuilding from a wiped `.next` with `--force`: `_not-found.html` came out
+     * unchanged, `lang="et"` and all 76 of the Theme's `--token-` properties.
+     * Control, flag kept and the file deleted: a bare `<html>` and none of them.
+     *
+     * Kept regardless, because it is what the shipped docs say and it is what
+     * the webpack path reads — `isGlobalNotFoundEnabled` in Next's own
+     * `build/entries.js` gates the convention on it, so a build with `--webpack`
+     * would need it. Cheap to keep, too: `next.config.ts` is typed `NextConfig`
+     * and `next build` type-checks it, so a renamed or misspelled key is a
+     * TS2561 and a failed build rather than a flag that quietly stops meaning
+     * anything.
      */
     globalNotFound: true,
   },
