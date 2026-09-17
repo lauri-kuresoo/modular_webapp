@@ -13,9 +13,12 @@
  * through `defineComposition` and `ComposedPage`; registering a Section is an
  * edit inside this package.
  *
- * The locale routing policy and the UI dictionaries sit behind `@salon/ui/i18n`
- * instead, because a Site imports them from `proxy.ts` and `i18n/request.ts`,
- * neither of which should drag a Section into its bundle.
+ * Two things sit behind subpaths of their own rather than here, both so that
+ * importing one part of this package does not cost a consumer the rest of it:
+ * `@salon/ui/i18n`, because a Site reads the routing policy and the dictionaries
+ * from `proxy.ts` and `i18n/request.ts`, neither of which should drag a Section
+ * into its bundle; and `@salon/ui/chrome`, because it holds a client component
+ * and this barrel is imported by pages that ship no JavaScript at all.
  */
 export { Container, type ContainerProps, type ContainerWidth } from "./primitives/container";
 export { Button, type ButtonProps, type ButtonVariant } from "./primitives/button";
@@ -23,6 +26,3 @@ export { Card, type CardElevation, type CardProps } from "./primitives/card";
 
 export { defineComposition, type Composition } from "./sections/composition";
 export { ComposedPage } from "./sections/composed-page";
-
-export { LocaleSwitcher } from "./chrome/locale-switcher";
-export { localeAlternates } from "./i18n/alternates";

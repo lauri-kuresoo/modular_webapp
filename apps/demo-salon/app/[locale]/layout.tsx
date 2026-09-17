@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { LocaleSwitcher } from "@salon/ui";
+import { LocaleSwitcher } from "@salon/ui/chrome";
 import { routing } from "@salon/ui/i18n";
 import { NextIntlClientProvider } from "next-intl";
 import { SITE_URL } from "../../site.config";

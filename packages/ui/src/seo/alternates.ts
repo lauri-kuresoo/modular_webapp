@@ -1,6 +1,6 @@
 import { DEFAULT_LOCALE, LOCALES, type Locale } from "@salon/core";
 import type { Metadata } from "next";
-import { getPathname } from "./navigation";
+import { getPathname } from "../i18n/navigation";
 
 /**
  * The canonical URL of one page in the locale being rendered, plus a reciprocal

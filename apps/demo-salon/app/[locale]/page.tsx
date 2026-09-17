@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { forTenant, siteTenant } from "@salon/data";
-import { ComposedPage, localeAlternates } from "@salon/ui";
+import { ComposedPage } from "@salon/ui";
+import { localeAlternates } from "@salon/ui/seo";
 import { HOME_COMPOSITION } from "../../composition";
 import { localeParam } from "./locale-param";
 
