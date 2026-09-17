@@ -125,7 +125,14 @@ the `@source` list in the app's `app/globals.css` so Tailwind scans it.
 - **Tailwind v4, CSS-first.** No `tailwind.config.js`; configuration lives in CSS
   via `@import "tailwindcss"` and `@theme`. Theme tokens become utilities through
   CSS, not through a JS config object that would have to be regenerated per
-  Tenant.
+  Tenant. Its source scanner is text-based and reads doc comments and string
+  literals, not just `className`s, so an ordinary English word that happens to
+  name a utility ships a real rule: writing "prerendered ... HTML" in a comment
+  in `packages/ui/src` put a `.static` rule in the Site's stylesheet, and that
+  class of defect has shipped three times here. Compare the built stylesheet's
+  selectors against `main` before you call a ticket done. The scanned roots are
+  the Site's own folder and the `@source` list in its `app/globals.css`; this
+  file is in neither, which is why it can spell the words out.
 - **TypeScript `strict`**, plus `noUncheckedIndexedAccess` and
   `moduleResolution: "bundler"`, shared from `tsconfig.base.json`.
   `noUncheckedIndexedAccess` is on from the start because the availability

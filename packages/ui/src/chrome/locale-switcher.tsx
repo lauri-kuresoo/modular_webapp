@@ -33,7 +33,7 @@ const LOCALE_NAMES: Record<Locale, string> = {
  * `rel="canonical"` says `/`. Read from next-intl 4.14's source: with
  * `localeCookie: false` all its `Link` adds over `next/link` is that forced
  * prefix, the `hrefLang` set explicitly below, and `prefetch={false}`. Prefetch
- * is wanted here — both locales are prerendered static HTML.
+ * is wanted here: both locales are prerendered, so it is a cache hit.
  *
  * The one client component on a Site, and it is one because the current path is
  * only knowable in the browser. It renders real `<a>` elements, so it still
