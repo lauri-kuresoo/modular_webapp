@@ -10,7 +10,7 @@ flag them.
 
 **Status:** ready-for-agent
 
-**Build status:** changes-requested
+**Build status:** done
 
 ## Design and technology choices
 
@@ -84,3 +84,47 @@ retrofitting localised slugs later changes every URL you have published.
 - [ ] A `LocaleSwitcher` in the chrome switches locale while staying on the equivalent page
 - [ ] The decision on whether path segments are localised is recorded in the repo
 - [ ] No `Accept-Language` based redirect exists
+
+## Build log
+
+Merged to `main` as `db225e9`, branch `ticket/05-i18n-locale-fallback` tip `9a3ccae`.
+
+Three implementer rounds and three verification passes. The first implementer's
+process was killed by a watchdog mid-work; its output was rescued as `1f1f6bd`
+and finished by a second.
+
+Defects found in review, none of which `tsc`, lint or the build caught:
+
+- **The 404 lost its document.** Moving the root layout under `[locale]` left
+  `/_not-found` with Next's synthesised bare layout — no `lang`, no Theme, no
+  fonts, no `color-scheme`. Reached by every unmatched URL and, because the
+  proxy matcher excludes dotted paths, by `/favicon.ico` and `/robots.txt` too.
+  Fixed with `app/global-not-found.tsx` plus a shared `SiteDocument`; both
+  simpler remedies were reproduced as unworkable against Next's own source.
+- **Four CSS rules generated from doc-comment prose** (`.invisible`, `.visible`,
+  `.absolute`, `.static`), then a fifth from the fix's own comment. Fourth and
+  fifth occurrences of this class on this project.
+- **The build inherited the build machine's timezone.** next-intl defaulted to
+  the process zone, so the same commit prerendered `Europe/Tallinn` locally and
+  `UTC` on Vercel. Fixed with `SITE_TIME_ZONE`; the Tenant document supersedes
+  it when a later ticket formats a date.
+- **375,143 bytes of Zod on every locale page.** This ticket added the repo's
+  first client component, which created the first client module graph, which
+  reached `@salon/core`'s barrel and pulled Zod in. Fixed by giving
+  `@salon/core` a zod-free `./locale` entry point. Locale pages 998,347 →
+  623,204 bytes.
+- **A comment stating a rule the code contradicts.** The 404 is Estonian even
+  at `/en/…`, which is where an English Visitor is most likely to land.
+  Behaviour kept — locale-awareness would cost a per-request route — and
+  recorded.
+
+Carried forward, not blocking:
+
+- `packages/ui/src/chrome/index.ts` cross-references `@salon/ui/i18n` as
+  existing "for the same reason"; it does not. One-line reword when touched.
+- Nothing structurally prevents a later `"use client"` component importing the
+  `@salon/core` barrel and re-shipping Zod. An eslint `no-restricted-imports`
+  scoped to files carrying `"use client"` would close it. Until then the
+  standing chunk-size invariant catches it at verification.
+- `SITE_URL` is `https://demo-salon.example`, a reserved non-resolving domain,
+  and is now in every canonical and `hreflang`. Awaiting a decision.
