@@ -110,6 +110,15 @@ the `@source` list in the app's `app/globals.css` so Tailwind scans it.
 
 - **Next.js App Router**, React Server Components by default. No `pages/`
   directory, and no client components until a ticket needs interactivity.
+  Ticket 05 was that ticket: `LocaleSwitcher` is the repo's only `"use client"`,
+  because the path a Visitor is currently on is knowable in the browser and
+  nowhere else. It is also what makes a Site hydrate at all — measured on the
+  prerendered home page, the JavaScript it references went from 567,079 to
+  998,204 bytes uncompressed. Nearly all of that is React DOM and the client
+  router, paid once when the first client component appears and not again for
+  the second. So the question a later ticket has to answer is no longer what a
+  client component costs but whether what it does survives without JavaScript —
+  the switcher renders real `<a>` elements, and does.
 - **Every Site page is statically generated.** That is what makes the spec's
   "zero Firestore reads on public traffic" claim true. Site pages declare
   `export const dynamic = "force-static"` so the intent is checkable.
@@ -135,9 +144,9 @@ rather than deferred: identical segments, because a path is the Platform
 Operator's vocabulary rather than the Tenant's words, and renaming a page in one
 locale should not change the other locale's URL.
 
-Everything that builds a URL goes through `Link`, `usePathname` and `getPathname`
-in `@salon/ui/src/i18n/navigation.ts`, so reversing this decision is a
-`pathnames` map added to `routing` and nothing else.
+Everything that builds a URL goes through `usePathname` and `getPathname` in
+`@salon/ui/src/i18n/navigation.ts`, so reversing this decision is a `pathnames`
+map added to `routing` and nothing else.
 
 ### The type checker is the only quality gate
 
