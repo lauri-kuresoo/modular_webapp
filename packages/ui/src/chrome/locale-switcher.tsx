@@ -1,6 +1,6 @@
 "use client";
 
-import { LOCALES, type Locale } from "@salon/core";
+import { LOCALES, type Locale } from "@salon/core/locale";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { getPathname, usePathname } from "../i18n/navigation";

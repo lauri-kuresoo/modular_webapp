@@ -1,4 +1,4 @@
-import { DEFAULT_LOCALE, LOCALES, type Locale } from "@salon/core";
+import { DEFAULT_LOCALE, LOCALES, type Locale } from "@salon/core/locale";
 import type { Metadata } from "next";
 import { getPathname } from "../i18n/navigation";
 

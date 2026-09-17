@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { DEFAULT_LOCALE, localeSchema, type Locale } from "./locale";
+import { DEFAULT_LOCALE, type Locale } from "./locale";
+import { localeSchema } from "./locale-schema";
 
 /**
  * The optional locales are listed by hand because the required/optional split is

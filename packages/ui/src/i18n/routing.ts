@@ -1,4 +1,4 @@
-import { DEFAULT_LOCALE, LOCALES } from "@salon/core";
+import { DEFAULT_LOCALE, LOCALES } from "@salon/core/locale";
 import { defineRouting } from "next-intl/routing";
 
 /**

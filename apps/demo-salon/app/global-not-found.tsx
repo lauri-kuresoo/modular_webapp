@@ -1,4 +1,4 @@
-import { DEFAULT_LOCALE } from "@salon/core";
+import { DEFAULT_LOCALE } from "@salon/core/locale";
 import { Container } from "@salon/ui";
 import { UI_MESSAGES } from "@salon/ui/i18n";
 import type { Metadata } from "next";

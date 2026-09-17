@@ -56,6 +56,20 @@ docs/
 
 Five packages. Resist a sixth without writing down why.
 
+**`@salon/core` has two entry points, and the barrel is the expensive one.**
+Everything reachable from `@salon/core` reaches the Content schemas and so the
+Zod runtime, which Turbopack does not shake back out of a client bundle: while
+`packages/ui/src/i18n/routing.ts` read `LOCALES` off the barrel, every Site page
+shipped 375,143 bytes of Zod to a browser that parses nothing.
+`@salon/core/locale` is the zod-free entry point — `LOCALES`, `DEFAULT_LOCALE`
+and the `Locale` type are defined there and the barrel re-exports them, so there
+is still exactly one of each. Import from it in a `"use client"` component and in
+anything a client component can reach; `localeSchema` and everything else that
+parses stays behind the barrel, where only server code reads it. Ticket 05 fixed
+this rather than leaving it to a later ticket, because ticket 05 is what created
+the platform's first client graph, and every client component added after it
+would have inherited the wrong import.
+
 **`@salon/ui` has three entry points and the split is load-bearing.** The main
 barrel is what a page imports in order to render, so nothing reachable from it
 may reach a `"use client"` module: while one did, a 404 that renders a single
@@ -123,19 +137,19 @@ the `@source` list in the app's `app/globals.css` so Tailwind scans it.
   directory, and no client components until a ticket needs interactivity.
   Ticket 05 was that ticket: `LocaleSwitcher` is the repo's only `"use client"`,
   because the path a Visitor is currently on is knowable in the browser and
-  nowhere else. Measured by summing the chunks each prerendered page's HTML
-  references: the home page went from 567,079 bytes of JavaScript to 998,347,
-  while the 404, which mounts no client component, sits at 567,226 — so Next
-  ships that ~567 KB baseline whatever a page contains, and the switcher's own
-  price is the 431,121-byte difference. Of that, 375,192 bytes are Zod, and no
-  browser here parses a schema: `packages/ui/src/i18n/routing.ts` imports
-  `LOCALES` from the `@salon/core` barrel, the barrel re-exports the Content
-  schemas, and Turbopack ships the lot rather than shaking it out. A probe that
-  kept `@salon/core` out of the client graph entirely took the home page to
-  623,206 — worth fixing before the next client component is added rather than
-  after. What a client component costs is therefore no longer the interesting
-  question; whether what it does survives without JavaScript is. The switcher
-  renders real `<a>` elements, and does.
+  nowhere else. Measured by summing the distinct chunks each prerendered page's
+  HTML references: before ticket 05 every page carried 567,079 bytes of
+  JavaScript, and the 404, which mounts no client component, carries 567,226 now
+  — so Next ships that ~567 KB baseline whatever a page contains. A locale page
+  carries 623,204. Of the 55,978-byte difference, 44,384 is
+  `NextIntlClientProvider`, which the layout mounts whether or not a switcher
+  exists — measured by deleting the switcher from the layout and rebuilding,
+  which gives 611,610 — and the remaining 11,594 is the switcher itself. It was
+  998,347 until `@salon/core` grew the zod-free entry point described above; no
+  chunk any Site page references now contains the string `zod`. What a client
+  component costs is therefore no longer the interesting question; whether what
+  it does survives without JavaScript is. The switcher renders real `<a>`
+  elements, and does.
 - **Every Site page is statically generated.** That is what makes the spec's
   "zero Firestore reads on public traffic" claim true. Site pages declare
   `export const dynamic = "force-static"` so the intent is checkable.

@@ -5,6 +5,12 @@
  * This file is the seed: branded identifiers, the locale contract and the
  * shape of stored Content. Later tickets add the Tenant, Service, Staff and
  * Booking schemas here.
+ *
+ * Everything reachable from here reaches zod, because the schemas are most of
+ * what this package is. A `"use client"` component must therefore import from
+ * `@salon/core/locale` instead, which is the same `LOCALES` and the same
+ * `Locale` re-exported below — see the note in `locale.ts` for what the barrel
+ * costs a browser.
  */
 
 /** Nominal typing helper, so a `StaffId` is never accepted where a `ServiceId` belongs. */
@@ -21,7 +27,8 @@ export const serviceId = (value: string): ServiceId => value as ServiceId;
 export const staffId = (value: string): StaffId => value as StaffId;
 export const bookingId = (value: string): BookingId => value as BookingId;
 
-export { LOCALES, DEFAULT_LOCALE, localeSchema, type Locale } from "./locale";
+export { LOCALES, DEFAULT_LOCALE, type Locale } from "./locale";
+export { localeSchema } from "./locale-schema";
 export {
   contentDocumentSchema,
   resolveContent,
