@@ -5,4 +5,7 @@ export const en: UiMessages = {
   localeSwitcher: {
     label: "Choose language",
   },
+  notFound: {
+    title: "Page not found",
+  },
 };

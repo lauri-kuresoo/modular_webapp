@@ -14,6 +14,9 @@ export const et = {
   localeSwitcher: {
     label: "Vali keel",
   },
+  notFound: {
+    title: "Lehte ei leitud",
+  },
 };
 
 export type UiMessages = typeof et;
