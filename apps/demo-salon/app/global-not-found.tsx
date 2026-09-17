@@ -5,11 +5,20 @@ import type { Metadata } from "next";
 import { SITE_VIEWPORT, SiteDocument } from "./site-document";
 
 /**
- * Estonian, because a URL that matched no route carries no locale and this
- * platform negotiates none from the request. Read out of the dictionary
- * directly rather than through `useTranslations`, because `i18n/request.ts`
- * resolves the active locale from the `[locale]` root param and this page is
- * rendered outside that segment, where there is no such param to read.
+ * Estonian for every unmatched URL, `/en/...` included. A broken English link
+ * answers 404 with this page: an Estonian heading under `lang="et"`, which is
+ * also what an English Visitor's screen reader will announce. So this is the one
+ * page on the platform whose locale the URL does not decide.
+ *
+ * The alternative is worse. Next renders `global-not-found` once, at build, for
+ * every URL that matched nothing; reading a locale out of the request would make
+ * it the Site's only per-request route, and "zero Firestore reads on public
+ * traffic" is a claim checked by every route being prerendered.
+ *
+ * Read out of the dictionary directly rather than through `useTranslations`,
+ * because `i18n/request.ts` resolves the active locale from the `[locale]` root
+ * param and this page is rendered outside that segment, where there is no such
+ * param to read.
  */
 const { notFound } = UI_MESSAGES[DEFAULT_LOCALE];
 

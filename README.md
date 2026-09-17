@@ -56,6 +56,17 @@ docs/
 
 Five packages. Resist a sixth without writing down why.
 
+**`@salon/ui` has three entry points and the split is load-bearing.** The main
+barrel is what a page imports in order to render, so nothing reachable from it
+may reach a `"use client"` module: while one did, a 404 that renders a single
+`Container` and nothing interactive was served 430,837 bytes of JavaScript it
+never ran. `@salon/ui/chrome` holds the components that are themselves client
+components, `@salon/ui/i18n` the routing policy and dictionaries that `proxy.ts`
+and `i18n/request.ts` read outside React, and `@salon/ui/seo` the metadata
+helpers — those build per-locale URLs through `next-intl`'s navigation, which
+reaches a client `Link` it never renders. Put a new file behind the entry point
+its imports allow, not the one its name suggests.
+
 ### Dependency direction is one-way
 
 ```
@@ -112,13 +123,18 @@ the `@source` list in the app's `app/globals.css` so Tailwind scans it.
   directory, and no client components until a ticket needs interactivity.
   Ticket 05 was that ticket: `LocaleSwitcher` is the repo's only `"use client"`,
   because the path a Visitor is currently on is knowable in the browser and
-  nowhere else. It is also what makes a Site hydrate at all — measured on the
-  prerendered home page, the JavaScript it references went from 567,079 to
-  998,204 bytes uncompressed. Nearly all of that is React DOM and the client
-  router, paid once when the first client component appears and not again for
-  the second. So the question a later ticket has to answer is no longer what a
-  client component costs but whether what it does survives without JavaScript —
-  the switcher renders real `<a>` elements, and does.
+  nowhere else. Measured by summing the chunks each prerendered page's HTML
+  references: the home page went from 567,079 bytes of JavaScript to 998,347,
+  while the 404, which mounts no client component, sits at 567,226 — so Next
+  ships that ~567 KB baseline whatever a page contains, and the switcher's own
+  price is the 431,121-byte difference. Of that, 375,192 bytes are Zod, and no
+  browser here parses a schema: `packages/ui/src/i18n/routing.ts` imports
+  `LOCALES` from the `@salon/core` barrel, the barrel re-exports the Content
+  schemas, and Turbopack ships the lot rather than shaking it out. Dropping that
+  one import in a probe took the home page to 623,206. Worth fixing before the
+  next client component is added rather than after. What a client component
+  costs is therefore no longer the interesting question — whether it survives
+  without JavaScript is: the switcher renders real `<a>` elements, and does.
 - **Every Site page is statically generated.** That is what makes the spec's
   "zero Firestore reads on public traffic" claim true. Site pages declare
   `export const dynamic = "force-static"` so the intent is checkable.
@@ -141,6 +157,11 @@ the `@source` list in the app's `app/globals.css` so Tailwind scans it.
   from the single `routing` in `@salon/ui/i18n`. No Site declares its own
   strategy, and no locale is negotiated from `Accept-Language` or remembered in
   a cookie: the URL is the only thing that decides which locale a page is in.
+  With one exception, `app/global-not-found.tsx`, which is Estonian for every
+  URL that matched no route — `/en/nope` included, so an English Visitor
+  following a broken link gets an Estonian 404 under `lang="et"`. Next renders
+  that page once at build for all unmatched URLs; making it read the locale off
+  the URL would make it the Site's only per-request route.
 
 ### Path segments are the same in every locale
 
