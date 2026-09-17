@@ -1,16 +1,17 @@
-import type { Metadata, Viewport } from "next";
-import type { ReactNode } from "react";
+import type { Locale } from "@salon/core";
 import { THEME_PRESETS, themeStyleSheet } from "@salon/theme";
+import type { Viewport } from "next";
+import type { ReactNode } from "react";
 import { SITE_THEME } from "../site.config";
 import { typefaceClassNames } from "./fonts";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: "Demo Salon",
-  description: "Reference Site for the modular salon platform.",
-};
-
-export const viewport: Viewport = {
+/**
+ * Next reads `viewport` off the route module itself, so each of the two document
+ * roots has to export it; this is the one copy they both export, for the same
+ * reason the markup below is shared.
+ */
+export const SITE_VIEWPORT: Viewport = {
   width: "device-width",
   initialScale: 1,
   /**
@@ -28,9 +29,22 @@ export const viewport: Viewport = {
 const preset = THEME_PRESETS[SITE_THEME];
 const themeCss = themeStyleSheet(SITE_THEME);
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+/**
+ * The Site's HTML document: its language, its Theme and its typefaces.
+ *
+ * A component rather than simply the body of the root layout, because this Site
+ * has two document roots. `app/[locale]/layout.tsx` is the root for every real
+ * page; `app/global-not-found.tsx` is a second root, for URLs matching no route
+ * at all — Next renders those outside the `[locale]` segment, where no layout
+ * beneath it can reach them. Keeping the document here is what stops a root from
+ * omitting part of it: while the shell lived in the locale layout alone, every
+ * 404 — `/nope`, and every dotted path such as `/favicon.ico`, which `proxy.ts`
+ * deliberately lets fall through — was served as a bare `<html>` with no `lang`
+ * and not one of the Theme's `--token-*` custom properties.
+ */
+export function SiteDocument({ locale, children }: { locale: Locale; children: ReactNode }) {
   return (
-    <html lang="et" className={typefaceClassNames(preset.type)}>
+    <html lang={locale} className={typefaceClassNames(preset.type)}>
       <head>
         {/*
          * The Theme, inlined. It is a fixed string built from typed preset data

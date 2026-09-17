@@ -56,6 +56,31 @@ docs/
 
 Five packages. Resist a sixth without writing down why.
 
+**`@salon/core` has two entry points, and the barrel is the expensive one.**
+Everything reachable from `@salon/core` reaches the Content schemas and so the
+Zod runtime, which Turbopack does not shake back out of a client bundle: while
+`packages/ui/src/i18n/routing.ts` read `LOCALES` off the barrel, every Site page
+shipped 375,143 bytes of Zod to a browser that parses nothing.
+`@salon/core/locale` is the zod-free entry point — `LOCALES`, `DEFAULT_LOCALE`
+and the `Locale` type are defined there and the barrel re-exports them, so there
+is still exactly one of each. Import from it in a `"use client"` component and in
+anything a client component can reach; `localeSchema` and everything else that
+parses stays behind the barrel, where only server code reads it. Ticket 05 fixed
+this rather than leaving it to a later ticket, because ticket 05 is what created
+the platform's first client graph, and every client component added after it
+would have inherited the wrong import.
+
+**`@salon/ui` has three entry points and the split is load-bearing.** The main
+barrel is what a page imports in order to render, so nothing reachable from it
+may reach a `"use client"` module: while one did, a 404 that renders a single
+`Container` and nothing interactive was served 430,837 bytes of JavaScript it
+never ran. `@salon/ui/chrome` holds the components that are themselves client
+components, `@salon/ui/i18n` the routing policy and dictionaries that `proxy.ts`
+and `i18n/request.ts` read outside React, and `@salon/ui/seo` the metadata
+helpers — those build per-locale URLs through `next-intl`'s navigation, which
+reaches a client `Link` it never renders. Put a new file behind the entry point
+its imports allow, not the one its name suggests.
+
 ### Dependency direction is one-way
 
 ```
@@ -110,17 +135,61 @@ the `@source` list in the app's `app/globals.css` so Tailwind scans it.
 
 - **Next.js App Router**, React Server Components by default. No `pages/`
   directory, and no client components until a ticket needs interactivity.
+  Ticket 05 was that ticket: `LocaleSwitcher` is the repo's only `"use client"`,
+  because the path a Visitor is currently on is knowable in the browser and
+  nowhere else. Measured by summing the distinct chunks each prerendered page's
+  HTML references: before ticket 05 every page carried 567,079 bytes of
+  JavaScript, and the 404, which mounts no client component, carries 567,226 now
+  — so Next ships that ~567 KB baseline whatever a page contains. A locale page
+  carries 623,204. Of the 55,978-byte difference, 44,384 is
+  `NextIntlClientProvider`, which the layout mounts whether or not a switcher
+  exists — measured by deleting the switcher from the layout and rebuilding,
+  which gives 611,610 — and the remaining 11,594 is the switcher itself. It was
+  998,347 until `@salon/core` grew the zod-free entry point described above; no
+  chunk any Site page references now contains the string `zod`. What a client
+  component costs is therefore no longer the interesting question; whether what
+  it does survives without JavaScript is. The switcher renders real `<a>`
+  elements, and does.
 - **Every Site page is statically generated.** That is what makes the spec's
   "zero Firestore reads on public traffic" claim true. Site pages declare
   `export const dynamic = "force-static"` so the intent is checkable.
 - **Tailwind v4, CSS-first.** No `tailwind.config.js`; configuration lives in CSS
   via `@import "tailwindcss"` and `@theme`. Theme tokens become utilities through
   CSS, not through a JS config object that would have to be regenerated per
-  Tenant.
+  Tenant. Its source scanner is text-based and reads doc comments and string
+  literals, not just `className`s, so an ordinary English word that happens to
+  name a utility ships a real rule: writing "prerendered ... HTML" in a comment
+  in `packages/ui/src` put a `.static` rule in the Site's stylesheet, and that
+  class of defect has shipped three times here. Compare the built stylesheet's
+  selectors against `main` before you call a ticket done. The scanned roots are
+  the Site's own folder and the `@source` list in its `app/globals.css`; this
+  file is in neither, which is why it can spell the words out.
 - **TypeScript `strict`**, plus `noUncheckedIndexedAccess` and
   `moduleResolution: "bundler"`, shared from `tsconfig.base.json`.
   `noUncheckedIndexedAccess` is on from the start because the availability
   arithmetic indexes into Cell arrays constantly.
+- **`next-intl`, Estonian unprefixed.** `/` is Estonian and `/en/…` is English,
+  from the single `routing` in `@salon/ui/i18n`. No Site declares its own
+  strategy, and no locale is negotiated from `Accept-Language` or remembered in
+  a cookie: the URL is the only thing that decides which locale a page is in.
+  With one exception, `app/global-not-found.tsx`, which is Estonian for every
+  URL that matched no route — `/en/nope` included, so an English Visitor
+  following a broken link gets an Estonian 404 under `lang="et"`. Next renders
+  that page once at build for all unmatched URLs; making it read the locale off
+  the URL would make it the Site's only per-request route.
+
+### Path segments are the same in every locale
+
+The Estonian page at `/services` is the English page at `/en/services`; there is
+no `/teenused`. `next-intl` can map localised segments, and adding that map later
+rewrites every URL the Tenant has already published, so the decision is taken now
+rather than deferred: identical segments, because a path is the Platform
+Operator's vocabulary rather than the Tenant's words, and renaming a page in one
+locale should not change the other locale's URL.
+
+Everything that builds a URL goes through `usePathname` and `getPathname` in
+`@salon/ui/src/i18n/navigation.ts`, so reversing this decision is a `pathnames`
+map added to `routing` and nothing else.
 
 ### The type checker is the only quality gate
 
