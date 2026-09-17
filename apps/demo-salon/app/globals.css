@@ -3,7 +3,7 @@
 /*
  * The token-to-utility mapping and the platform-level rules (reduced motion,
  * base typography) every Site shares. The `--token-*` values it consumes are
- * inlined by the root layout from `themeStyleSheet(SITE_THEME)`.
+ * inlined by `SiteDocument` from `themeStyleSheet(SITE_THEME)`.
  */
 @import "@salon/theme/base.css";
 
