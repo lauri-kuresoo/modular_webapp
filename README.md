@@ -130,8 +130,9 @@ the `@source` list in the app's `app/globals.css` so Tailwind scans it.
   price is the 431,121-byte difference. Of that, 375,192 bytes are Zod, and no
   browser here parses a schema: `packages/ui/src/i18n/routing.ts` imports
   `LOCALES` from the `@salon/core` barrel, the barrel re-exports the Content
-  schemas, and Turbopack ships the lot rather than shaking it out. Dropping that
-  one import in a probe took the home page to 623,206. Worth fixing before the
+  schemas, and Turbopack ships the lot rather than shaking it out. A probe that
+  kept `@salon/core` out of the client graph entirely took the home page to
+  623,206. Worth fixing before the
   next client component is added rather than after. What a client component
   costs is therefore no longer the interesting question — whether it survives
   without JavaScript is: the switcher renders real `<a>` elements, and does.
