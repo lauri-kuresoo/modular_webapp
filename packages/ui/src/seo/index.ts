@@ -8,8 +8,10 @@
  * `next-intl` — measured on the prerendered `_not-found.html`, which has no
  * behaviour to hydrate at all.
  *
- * It is not in `@salon/ui/i18n` for the opposite reason: `proxy.ts` imports
- * that subpath and runs outside the App Directory, where the same navigation
- * import fails the build.
+ * Not in `@salon/ui/i18n` either, and that one is not a judgement call:
+ * `proxy.ts` imports that subpath, and re-exporting this function from it fails
+ * `next build` outright — the navigation import reaches the Site's
+ * `i18n/request.ts` and from there `next/root-params`, which "can only be used
+ * inside the App Directory".
  */
 export { localeAlternates } from "./alternates";

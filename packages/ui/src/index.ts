@@ -13,12 +13,14 @@
  * through `defineComposition` and `ComposedPage`; registering a Section is an
  * edit inside this package.
  *
- * Two things sit behind subpaths of their own rather than here, both so that
- * importing one part of this package does not cost a consumer the rest of it:
- * `@salon/ui/i18n`, because a Site reads the routing policy and the dictionaries
- * from `proxy.ts` and `i18n/request.ts`, neither of which should drag a Section
- * into its bundle; and `@salon/ui/chrome`, because it holds a client component
- * and this barrel is imported by pages that ship no JavaScript at all.
+ * This is one of the package's three entry points, and it is the one a page
+ * imports in order to render, so nothing reachable from here may reach a
+ * `"use client"` module — a page that wants a `Container` would pay for it.
+ * `@salon/ui/chrome` holds the components that are client components, and
+ * `@salon/ui/seo` the metadata helpers, which reach one without rendering it.
+ * `@salon/ui/i18n` is split off for a different reason: `proxy.ts` and
+ * `i18n/request.ts` read the routing policy and the dictionaries from outside
+ * React, and neither should drag a Section into its bundle.
  */
 export { Container, type ContainerProps, type ContainerWidth } from "./primitives/container";
 export { Button, type ButtonProps, type ButtonVariant } from "./primitives/button";
