@@ -2,10 +2,11 @@ import { localeSchema } from "@salon/core";
 import { UI_MESSAGES } from "@salon/ui/i18n";
 import { getRequestConfig } from "next-intl/server";
 import { locale as localeRootParam } from "next/root-params";
+import { SITE_TIME_ZONE } from "../site.config";
 
 /**
- * What `next-intl` resolves for each render: which locale it is, and the
- * dictionary to read UI strings from.
+ * What `next-intl` resolves for each render: which locale it is, the dictionary
+ * to read UI strings from, and the timezone to format times in.
  *
  * Plumbing, not policy — the locale set and the URL strategy live in
  * `@salon/ui/i18n`, and so do the dictionaries. This file exists at this path
@@ -20,5 +21,5 @@ import { locale as localeRootParam } from "next/root-params";
 export default getRequestConfig(async () => {
   const locale = localeSchema.parse(await localeRootParam());
 
-  return { locale, messages: UI_MESSAGES[locale] };
+  return { locale, messages: UI_MESSAGES[locale], timeZone: SITE_TIME_ZONE };
 });
