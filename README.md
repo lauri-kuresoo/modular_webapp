@@ -21,6 +21,19 @@ TypeScript is pinned to 5.9.3 rather than floating on `latest`, because the
 compiler is this repo's only quality gate and a compiler upgrade should be a
 deliberate commit.
 
+
+## Dev Container
+
+Optional alternative to local Node/pnpm: open this folder (or a ticket worktree
+under `.claude/worktrees/…`) in VS Code or Cursor and run **Dev Containers:
+Reopen in Container** from the Command Palette. The image pins Node **22** and
+pnpm **10.34.5** (same as `.nvmrc` / `packageManager`); `postCreateCommand` runs
+`pnpm install` at the repo root.
+
+Ticket work: create the worktree first (`git worktree add …`), open that
+worktree folder in the editor, then Reopen in Container so the container
+workspace is the ticket checkout, not the primary `main` tree.
+
 ## Commands
 
 Everything runs from the repo root, through Turborepo.
