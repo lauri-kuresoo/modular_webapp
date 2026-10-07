@@ -47,7 +47,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const t = await getTranslations("navbar");
   const stored = await forTenant(siteTenant()).content();
   const content = withDemoSeed(stored);
-  const composition = homeComposition({ open: t("openMenu"), close: t("closeMenu") });
+  const composition = homeComposition({ open: t("openMenu"), close: t("closeMenu"), home: t("home") });
 
   return <ComposedPage composition={composition} content={content} locale={locale} />;
 }

@@ -13,7 +13,7 @@ import { defineComposition } from "@salon/ui";
  * Sections never import `next-intl` themselves. The Site layout resolves the
  * active locale's dictionary and hands the strings in.
  */
-export function homeComposition(menu: { open: string; close: string }) {
+export function homeComposition(menu: { open: string; close: string; home: string }) {
   return defineComposition([
     {
       type: "navbar",
@@ -21,6 +21,7 @@ export function homeComposition(menu: { open: string; close: string }) {
       props: {
         menuOpenLabel: menu.open,
         menuCloseLabel: menu.close,
+        homeLabel: menu.home,
         links: [
           { href: "#about", labelField: "about" },
           { href: "#cta-band", labelField: "book" },

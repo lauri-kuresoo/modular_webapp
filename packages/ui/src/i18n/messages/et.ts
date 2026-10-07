@@ -23,6 +23,7 @@ export const et = {
   navbar: {
     openMenu: "Menüü",
     closeMenu: "Sulge",
+    home: "Avaleht",
   },
 };
 

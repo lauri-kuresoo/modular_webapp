@@ -14,5 +14,6 @@ export const en: UiMessages = {
   navbar: {
     openMenu: "Menu",
     closeMenu: "Close",
+    home: "Home",
   },
 };

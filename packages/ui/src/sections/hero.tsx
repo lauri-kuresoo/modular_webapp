@@ -82,7 +82,7 @@ export const hero = defineSection({
           <Container width="wide">
             <div className="grid items-center gap-8 md:grid-cols-2 md:gap-12">
               {copy}
-              <HeroImage content={content} className="relative aspect-[4/3] w-full overflow-hidden rounded-lg" />
+              <HeroImage content={content} priority className="relative aspect-[4/3] w-full overflow-hidden rounded-lg" />
             </div>
           </Container>
         </div>

@@ -65,13 +65,13 @@ to be the page's only substantial island.
 
 ## Acceptance criteria
 
-- [ ] Navbar renders in all three variants; the transparent variant is chosen from the Composition's leading Section rather than an independent prop, and falls back to solid when there is no leading Hero
-- [ ] Navbar scroll state uses an intersection observer, not a scroll listener
-- [ ] Hero renders in image, video and split variants from Tenant content in both locales
-- [ ] The Hero image is the LCP element: eagerly loaded, high priority, explicit dimensions with a reserved aspect ratio and a blur placeholder, and the page shows no layout shift
-- [ ] Under reduced motion the video Hero does not autoplay and offers a play control
-- [ ] Mobile navigation traps focus, closes on Escape and returns focus to the trigger
-- [ ] A skip link is the first focusable element and reaches the main landmark
-- [ ] Exactly one `<h1>` per page, contributed by the Hero; the documented heading policy is recorded with the registry
-- [ ] Footer renders address, phone, email, hours summary and the locale switcher from content
-- [ ] About and CTABand render from content, with the CTA target configurable in the Composition
+- [x] Navbar renders in all three variants; the transparent variant is chosen from the Composition's leading Section rather than an independent prop, and falls back to solid when there is no leading Hero
+- [x] Navbar scroll state uses an intersection observer, not a scroll listener
+- [x] Hero renders in image, video and split variants from Tenant content in both locales
+- [x] The Hero image is the LCP element: eagerly loaded, high priority, explicit dimensions with a reserved aspect ratio and a blur placeholder, and the page shows no layout shift
+- [x] Under reduced motion the video Hero does not autoplay and offers a play control
+- [x] Mobile navigation traps focus, closes on Escape and returns focus to the trigger
+- [x] A skip link is the first focusable element and reaches the main landmark
+- [x] Exactly one `<h1>` per page, contributed by the Hero; the documented heading policy is recorded with the registry
+- [x] Footer renders address, phone, email, hours summary and the locale switcher from content
+- [x] About and CTABand render from content, with the CTA target configurable in the Composition

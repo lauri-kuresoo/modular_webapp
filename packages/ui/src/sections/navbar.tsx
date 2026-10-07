@@ -32,6 +32,8 @@ const propsSchema = z.object({
   /** Platform UI strings — passed from the Site so this Section never imports next-intl. */
   menuOpenLabel: z.string().min(1),
   menuCloseLabel: z.string().min(1),
+  /** Accessible name when brand content is absent — platform UI string, not Tenant. */
+  homeLabel: z.string().min(1),
   /**
    * Injected by `ComposedPage` from the Composition's leading Section — not a
    * Composition authoring prop. Optional so a half-written Composition still
@@ -74,7 +76,7 @@ export const navbar = defineSection({
 
     const brandEl =
       brand === undefined ? (
-        <span className="sr-only">Home</span>
+        <span className="sr-only">{props.homeLabel}</span>
       ) : (
         <a href="#main" className="font-display text-lg font-semibold tracking-tight text-current">
           {brand}
@@ -86,7 +88,7 @@ export const navbar = defineSection({
         <Container width="wide">
           {centred ? (
             <div className="relative flex h-16 items-center justify-center">
-              <div className="absolute left-0 hidden items-center gap-1 md:flex">{linkElements}</div>
+              <nav className="absolute left-0 hidden items-center gap-1 md:flex" aria-label={props.menuOpenLabel}>{linkElements}</nav>
               {brandEl}
               <div className="absolute right-0">
                 <MobileNav openLabel={props.menuOpenLabel} closeLabel={props.menuCloseLabel}>
