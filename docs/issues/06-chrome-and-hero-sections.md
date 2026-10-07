@@ -10,7 +10,7 @@ content, in the active Theme, in either locale. Sections delivered: Navbar
 
 **Status:** ready-for-agent
 
-**Build status:** claimed
+**Build status:** done
 
 ## Design and technology choices
 
@@ -75,3 +75,9 @@ to be the page's only substantial island.
 - [x] Exactly one `<h1>` per page, contributed by the Hero; the documented heading policy is recorded with the registry
 - [x] Footer renders address, phone, email, hours summary and the locale switcher from content
 - [x] About and CTABand render from content, with the CTA target configurable in the Composition
+
+## Build log
+
+Merged to `main` as `20212c0` (fast-forward from `aed234a`), branch `ticket/06-chrome-and-hero-sections` tip `20212c0`.
+
+Review approved with nits; nits fixed in `20212c0`. Typecheck and build green before handoff.
