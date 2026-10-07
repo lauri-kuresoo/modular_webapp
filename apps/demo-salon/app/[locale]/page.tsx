@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { forTenant, siteTenant } from "@salon/data";
 import { ComposedPage } from "@salon/ui";
 import { localeAlternates } from "@salon/ui/seo";
-import { HOME_COMPOSITION } from "../../composition";
+import { getTranslations } from "next-intl/server";
+import { withDemoSeed } from "../../content/seed";
+import { homeComposition } from "../../composition";
 import { localeParam } from "./locale-param";
 
 /**
@@ -18,9 +20,7 @@ export const dynamic = "force-static";
  * 404. `[locale]` would otherwise act as a catch-all — measured with
  * `dynamicParams = true`, a request for `/favicon.ico` rendered this page per
  * request, loading `@salon/data` into the serving process, which is precisely
- * the Firestore read on public traffic the spec rules out. (It then failed on
- * `localeParam`'s parse, so the boundary holds either way; what `false` removes
- * is the render.)
+ * the Firestore read on public traffic the spec rules out.
  */
 export const dynamicParams = false;
 
@@ -36,7 +36,7 @@ export async function generateMetadata({
  * The whole page: a fold of the Composition over the Section Registry, given the
  * Tenant's Content and the locale to render it in. Nothing about what this Site
  * says lives here — the layout is `../../composition.ts` and the words are the
- * Tenant's own, in Firestore.
+ * Tenant's own (seeded for local builds without Firestore).
  *
  * This is the only layer allowed to reach `@salon/data`. Sections are handed
  * Content as an argument, which is what keeps the Firestore Admin SDK out of
@@ -44,11 +44,10 @@ export async function generateMetadata({
  */
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = await localeParam(params);
-  const content = await forTenant(siteTenant()).content();
+  const t = await getTranslations("navbar");
+  const stored = await forTenant(siteTenant()).content();
+  const content = withDemoSeed(stored);
+  const composition = homeComposition({ open: t("openMenu"), close: t("closeMenu") });
 
-  return (
-    <main>
-      <ComposedPage composition={HOME_COMPOSITION} content={content} locale={locale} />
-    </main>
-  );
+  return <ComposedPage composition={composition} content={content} locale={locale} />;
 }

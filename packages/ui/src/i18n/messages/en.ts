@@ -8,4 +8,11 @@ export const en: UiMessages = {
   notFound: {
     title: "Page not found",
   },
+  skipLink: {
+    label: "Skip to main content",
+  },
+  navbar: {
+    openMenu: "Menu",
+    closeMenu: "Close",
+  },
 };

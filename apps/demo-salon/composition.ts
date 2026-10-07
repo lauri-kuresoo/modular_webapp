@@ -1,36 +1,49 @@
 import { defineComposition } from "@salon/ui";
-import { THEME_PRESETS } from "@salon/theme";
-import { SITE_THEME } from "./site.config";
-
-const preset = THEME_PRESETS[SITE_THEME];
 
 /**
  * This Site's page, as configuration.
  *
- * The page is assembled from registered Sections rather than written: reordering
- * these entries reorders the page, and changing a `props` value re-shapes it,
- * without touching a component. `defineComposition` parses the list against the
- * Section Registry as this module loads, so a bad `type`, `variant` or props
- * object fails `next build`.
- *
  * Owned by the Platform Operator and versioned in git. The Tenant's own words
- * are not here: each entry's anchor id — `page-heading` for the first one — is
- * the id of its document under `tenants/{tenantId}/content`, which is where its
- * text is read from and where ticket 12's editor writes.
+ * are not here: each entry's anchor id is the id of its document under
+ * `tenants/{tenantId}/content`. Navbar transparency is derived by the fold from
+ * the leading Hero — the Composition asks for `solid` and gets transparent
+ * paint because `hero` is the first body Section.
+ *
+ * Menu labels are platform UI strings, passed through props so `@salon/ui`
+ * Sections never import `next-intl` themselves. The Site layout resolves the
+ * active locale's dictionary and hands the strings in.
  */
-export const HOME_COMPOSITION = defineComposition([
-  {
-    type: "page-heading",
-    variant: "left",
-    props: {},
-  },
-  {
-    type: "prose-block",
-    props: {
-      paragraphs: [
-        "This page is assembled from registered Sections rather than written by hand, and it is generated at build time, so it loads on mobile data before a visitor gives up.",
-        `It is rendering in the ${preset.label} Theme, which follows your operating system’s light or dark preference. Every colour, radius, font and spacing step comes from that Theme; no Section here knows which one is active.`,
-      ],
+export function homeComposition(menu: { open: string; close: string }) {
+  return defineComposition([
+    {
+      type: "navbar",
+      variant: "solid",
+      props: {
+        menuOpenLabel: menu.open,
+        menuCloseLabel: menu.close,
+        links: [
+          { href: "#about", labelField: "about" },
+          { href: "#cta-band", labelField: "book" },
+          { href: "#footer", labelField: "contact" },
+        ],
+      },
     },
-  },
-]);
+    {
+      type: "hero",
+      variant: "image",
+      props: { ctaHref: "#cta-band" },
+    },
+    {
+      type: "about",
+      props: {},
+    },
+    {
+      type: "cta-band",
+      props: { ctaHref: "#footer" },
+    },
+    {
+      type: "footer",
+      props: { privacyHref: "/privacy" },
+    },
+  ]);
+}

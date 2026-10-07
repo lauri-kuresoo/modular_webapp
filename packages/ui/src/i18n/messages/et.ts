@@ -17,6 +17,13 @@ export const et = {
   notFound: {
     title: "Lehte ei leitud",
   },
+  skipLink: {
+    label: "Liigu põhisisu juurde",
+  },
+  navbar: {
+    openMenu: "Menüü",
+    closeMenu: "Sulge",
+  },
 };
 
 export type UiMessages = typeof et;

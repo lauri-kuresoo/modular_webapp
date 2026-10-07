@@ -1,4 +1,9 @@
 import type { z } from "zod";
+import { about } from "./about";
+import { ctaBand } from "./cta-band";
+import { footer } from "./footer";
+import { hero } from "./hero";
+import { navbar } from "./navbar";
 import { pageHeading } from "./page-heading";
 import { proseBlock } from "./prose-block";
 
@@ -11,11 +16,32 @@ import { proseBlock } from "./prose-block";
  * everything below is derived from it, so a new entry is immediately known to
  * the type checker, to Composition autocomplete and to the fold. Adding a
  * Section to the platform is one line here plus the component's own module.
+ *
+ * ## Heading policy (ticket 06)
+ *
+ * Exactly one `<h1>` per page, and it belongs to the Hero. Every Section that
+ * follows — About, CTABand, and the later commercial/trust Sections — renders
+ * its title as `<h2>` (or lower). `page-heading` is the thin registry exercise
+ * from ticket 03 and follows the same rule so a Composition that still places
+ * it beside a Hero cannot produce two `<h1>`s. There is no test that will catch
+ * a drift into three `<h1>`s; the policy lives here so later tickets inherit it.
  */
 export const SECTION_REGISTRY = {
+  navbar,
+  hero,
+  about,
+  "cta-band": ctaBand,
+  footer,
   "page-heading": pageHeading,
   "prose-block": proseBlock,
 } as const;
+
+/**
+ * Sections that are page chrome rather than body content. `ComposedPage` wraps
+ * them in `<header>` / `<footer>` instead of `<section>`, and uses the body
+ * remainder to decide whether a Navbar sits over a leading Hero.
+ */
+export const CHROME_SECTION_TYPES = ["navbar", "footer"] as const;
 
 type Registry = typeof SECTION_REGISTRY;
 

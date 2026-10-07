@@ -10,6 +10,8 @@ content, in the active Theme, in either locale. Sections delivered: Navbar
 
 **Status:** ready-for-agent
 
+**Build status:** claimed
+
 ## Design and technology choices
 
 **The Navbar's transparency is derived, not configured.** The
